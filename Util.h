@@ -41,6 +41,12 @@ struct PointHasher {
     std::size_t operator()(const Point& p) const;
 };
 
+struct Edge {
+    PointId point1;
+    PointId point2;
+    int weight;
+};
+
 
 Point lerp(const Point &a, const Point &b, const double delta);
 double costFunction(std::vector<Point>& S, std::vector<Point>& T, Point& sPoint, Point& tPoint);

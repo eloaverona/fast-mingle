@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     std::vector<EdgeNode> edges;
     BaseNode::ReadEdges(argv[1], nodes, edges);
     initBundler(nodes, edges);
-    bundler->getTree().write("node.txt", "edges.txt");
+    bundler->getTree().write("nodes.txt", "edges.txt");
 
     printf("sizes are %ld\n", nodes.size());
     printf("sizes are %ld\n", edges.size());

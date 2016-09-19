@@ -1,4 +1,5 @@
 #include "renderer_main.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -10,26 +11,8 @@ double dataWidth;
 double dataHeight;
 Point dataCenter;
 
-/**
- * Calculates the dataWidth, dataHeight and dataCenter based on the edges.
- */
-// void calculateDataBounds(std::vector<EdgeNode> &edges) {
-//     double right = 0, top = 0, left = 0, bottom = 0;
-//     for (auto &e : edges) {
-//         Point &p1 = *e.getS();
-//         Point &p2 = *e.getT();
-//         left = p1.x < left ? p1.x : left;
-//         right = p2.x > right ? p2.x : right;
-//         bottom = p1.y < bottom ? p1.y : bottom;
-//         bottom = p2.y < bottom ? p2.y : bottom;
-//         top = p1.y > top ? p1.y : top;
-//         top = p2.y > top ? p2.y : top;
-//     }
-//     dataWidth = right - left;
-//     dataHeight = top - bottom;
-//     dataCenter.x = (float) (dataWidth / 2 + left);
-//     dataCenter.y = (float) (dataHeight / 2 + bottom);
-// }
+std::unordered_map<PointId, Point> pointMap;
+std::vector<Edge> edges;
 
 void drawLine(const Point *p1, const Point *p2, const int weight) {
     int w = (int)sqrt(weight) / 2;
@@ -80,7 +63,12 @@ void renderBundler() {
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // EdgeBundleIterator *iter = bundler->getTree().iterator();
+    for (auto edge : edges) {
+        Point s = pointMap[edge.point1];
+        Point t = pointMap[edge.point2];
+        drawLine(&s, &t, edge.weight);
+        printf("%u\n", edge.point1);
+    }
     // while (true) {
     //     BaseNode *n = iter->next();
     //     if (n == nullptr) break;
@@ -92,7 +80,53 @@ void renderBundler() {
     glFlush();
 }
 
+/**
+ * Reads the nodes from the provided path and calculates the bounds for the data.
+ */
+void readNodes(char *nodesPath) {
+    FILE *nodesFilePointer = fopen(nodesPath, "r");
+    assert(nodesFilePointer != NULL);
+
+    Point point;
+    double right = 0, top = 0, left = 0, bottom = 0;
+    while(fscanf(nodesFilePointer, "%d %f %f", &point.id, &point.x, &point.y) != EOF) {
+        pointMap[point.id] = point;
+        if (left > point.x) {
+            left = point.x;
+        }
+        if (right < point.x) {
+            right = point.x;
+        }
+        if (top < point.y) {
+            top = point.y;
+        }
+        if (bottom > point.y) {
+            bottom = point.y;
+        }
+    }
+    dataWidth = right - left;
+    dataHeight = top - bottom;
+    dataCenter.x = (float) (dataWidth / 2 + left);
+    dataCenter.y = (float) (dataHeight / 2 + bottom);
+}
+
+void readEdges(char *edgesPath) {
+    FILE *edgesFilePointer = fopen(edgesPath, "r");
+    assert(edgesFilePointer != NULL);
+    Edge edge;
+    while(fscanf(edgesFilePointer, "%u:%u:%u", &edge.point1, &edge.point2, &edge.weight) != EOF) {
+        edges.push_back(edge);
+    }
+}
+
 int main(int argc, char *argv[]) {
+	if (argc != 2 && argc != 3) {
+        fprintf(stderr, "usage: %s edges.txt nodes.txt\n", *argv);
+        return 1;
+    }
+    readNodes(argv[2]);
+    readEdges(argv[1]);
+
   	glutInit(&argc, argv);
   	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
   	glutInitWindowSize(WIDTH, HEIGHT);
