@@ -11,7 +11,7 @@
 
 class EdgeBundler {
 public:
-    EdgeBundler(std::vector<Point> *points, std::vector<EdgeNode> *edges, unsigned int numNeighbors=10, float curviness=0.5f);
+    EdgeBundler(std::vector<Point> *points, std::vector<EdgeNode> *edges, unsigned int numNeighbors);
     void doMingle();
     EdgeBundleTree &getTree() { return tree; }
 
@@ -22,7 +22,6 @@ private:
 
 
     unsigned int numNeighbors;
-    float curviness;
 
     EdgeBundleTree tree;
 

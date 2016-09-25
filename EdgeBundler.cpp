@@ -1,7 +1,7 @@
 #include "EdgeBundler.h"
 
-EdgeBundler::EdgeBundler(std::vector<Point> *points, std::vector<EdgeNode> *edges, unsigned int numNeighbors, float curviness)
-        : _edges(edges), tree(points, edges), numNeighbors(numNeighbors), curviness(curviness / 2.0f) {
+EdgeBundler::EdgeBundler(std::vector<Point> *points, std::vector<EdgeNode> *edges, unsigned int numNeighbors)
+        : _edges(edges), tree(points, edges), numNeighbors(numNeighbors) {
 }
 
 void EdgeBundler::rebuildIndex() {
@@ -66,8 +66,8 @@ void EdgeBundler::doMingle() {
                     numBundled++;
                 }
             }
+            printf("Bundled %d of %ld\n", numBundled, _edges->size());
         }
-        printf("Bundled %d of %ld\n", numBundled, _edges->size());
     } while (numBundled > 0);
 }
 
