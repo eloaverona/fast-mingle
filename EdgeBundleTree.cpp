@@ -20,6 +20,9 @@ double BaseNode::calculateBundle(BaseNode *other,
             (getTCentroid()->y * getWeight() + other->getTCentroid()->y * getWeight()) / combinedWeight
     };
 
+    printf("Centroid source x: %.2f, y: %.2f\n", sCentroid.x, sCentroid.y);
+    printf("Centroid target x: %.2f, y: %.2f\n", tCentroid.x, tCentroid.y);
+
     Point u = tCentroid - sCentroid;
     u = u / u.norm();
     double dist, distSum = 0, maxDist = 0;

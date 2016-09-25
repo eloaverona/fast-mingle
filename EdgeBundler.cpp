@@ -21,6 +21,13 @@ void EdgeBundler::rebuildIndex() {
     assert(annTree != nullptr);
 }
 
+/**
+ * Finds the neighbors of a point in the graph.
+ *
+ * @param target The target node.
+ * @param n Number of neighbors.
+ * @param neighbors The memory address to write the neighbors to.       
+ */
 void EdgeBundler::findNeighbors(BaseNode *target, int n, std::vector<BaseNode *>&neighbors) {
     // FIXME: Are these variable length arrays legal?
     ANNidx indices[n];

@@ -15,7 +15,6 @@ void initBundler(std::vector<Point> &points, std::vector<EdgeNode> &edges) {
         numNeighbors = 20;
     }
     bundler = new EdgeBundler(&points, &edges, numNeighbors);
-    bundler->doMingle();
 }
 
 int main(int argc, char *argv[]) {
@@ -27,6 +26,7 @@ int main(int argc, char *argv[]) {
     std::vector<EdgeNode> edges;
     BaseNode::ReadEdges(argv[1], nodes, edges);
     initBundler(nodes, edges);
+    bundler->doMingle();
     bundler->getTree().write("nodes.txt", "edges.txt");
     return 0;
 }

@@ -69,14 +69,6 @@ void renderBundler() {
         drawLine(&s, &t, edge.weight);
         printf("%u\n", edge.point1);
     }
-    // while (true) {
-    //     BaseNode *n = iter->next();
-    //     if (n == nullptr) break;
-
-    //     printf("connecting %3f,%3f to %3f,%3f\n", n->getS()->x, n->getS()->y, n->getT()->x, n->getT()->y);
-    //     drawLine(n->getS(), n->getT(), 1);
-    // }
-    // delete iter;
     glFlush();
 }
 

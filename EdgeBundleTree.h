@@ -12,10 +12,13 @@
 
 class BaseNode;
 class BundleNode;
-class CoalescedNode;
 class EdgeNode;
 
-
+/*
+ * Represents a node in the 4-dimensional graph, Γ, that represents the edges
+ * in a graph. The four coordinates of this node are the x and y coordinates
+ * of both the source and the target points in the original graph.
+ */
 class BaseNode {
 public:
     virtual ~BaseNode() {}
@@ -69,7 +72,7 @@ public:
     void bundleWith(BaseNode *other);
 
     /**
-     * @return The root bundle associated with this node.
+     * @return Whether this node has a root bundle.
      */
     bool hasBundle() { return _b != nullptr; }
 
