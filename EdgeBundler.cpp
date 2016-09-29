@@ -54,18 +54,23 @@ void EdgeBundler::doMingle() {
         numBundled = 0;
         printf("Iter: %d\n", iter++);
         for (auto &edge : *_edges) {
+            printf("Edge: s: x %2.f y %2.f t x %2.f y %2.f\n", edge.getS()->x, edge.getS()->y, edge.getT()->x, edge.getT()->y);
             if (!edge.hasBundle()) {
                 findNeighbors(&edge, numNeighbors, neighbors);
                 double maxInkSaved = 0.0;
                 BaseNode *bestNeighbor = nullptr;
                 for (auto np : neighbors) {
+                    printf("Neighbor: s: x %2.f y %2.f t x %2.f y %2.f\n", np->getS()->x, np->getS()->y, np->getT()->x, np->getT()->y);
+                    printf("Edge 1 ink %f Edge 2 ink %f\n", edge.getInk(), np->getInk());
                     double inkSaved = edge.calculateBundleInkSavings(np);
+                    printf("InkSaved %2.f\n", inkSaved);
                     if (inkSaved > maxInkSaved) {
                         maxInkSaved = inkSaved;
                         bestNeighbor = np;
                     }
                 }
                 if (bestNeighbor != nullptr) {
+                    printf("Best neighbor: s: x %2.f y %2.f t x %2.f y %2.f\n", bestNeighbor->getS()->x, bestNeighbor->getS()->y, bestNeighbor->getT()->x, bestNeighbor->getT()->y);
                     edge.bundleWith(bestNeighbor);
                     printf("bundling %u %u and %u %u\n",
                            edge.getS()->id, edge.getT()->id,

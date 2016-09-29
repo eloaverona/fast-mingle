@@ -148,7 +148,7 @@ public:
     int getWeight() { return 1; }
     std::vector<BaseNode *> *getChildren() { return &NO_POINTS; }
     bool isBundle() { return false; }
-    double getInk() { return _s->sqDist(*_t); }
+    double getInk() { return sqrt(_t->sqDist(*_s)); }
 
 private:
     Point *_s = nullptr;

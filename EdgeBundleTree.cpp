@@ -20,14 +20,16 @@ double BaseNode::calculateBundle(BaseNode *other,
             (getTCentroid()->y * getWeight() + other->getTCentroid()->y * getWeight()) / combinedWeight
     };
 
-    printf("Centroid source x: %.2f, y: %.2f\n", sCentroid.x, sCentroid.y);
-    printf("Centroid target x: %.2f, y: %.2f\n", tCentroid.x, tCentroid.y);
-
     Point u = tCentroid - sCentroid;
     u = u / u.norm();
     double dist, distSum = 0, maxDist = 0;
     int k = 0;
     for (auto n : {this, other}) {
+      Point v = *n->getS() - sCentroid;
+      dist = u * v;
+      maxDist = maxDist < dist ? dist : maxDist;
+      distSum += dist;
+      k += 1;
       for (auto child : *n->getChildren()) {
           Point v = *child->getS() - sCentroid;
           dist = u * v;
@@ -36,7 +38,12 @@ double BaseNode::calculateBundle(BaseNode *other,
           k += 1;
       }
     }
-     for (auto n : {this, other}) {
+    for (auto n : {this, other}) {
+      Point v = *n->getT() - tCentroid;
+      dist = -(u * v);
+      maxDist = maxDist < dist ? dist : maxDist;
+      distSum += dist;
+      k += 1;
       for (auto child : *n->getChildren()) {
           Point v = *child->getT() - tCentroid;
           dist = -(u * v);
@@ -48,23 +55,37 @@ double BaseNode::calculateBundle(BaseNode *other,
 
     Point delta = tCentroid - sCentroid;
     double d = delta.norm();
+    // printf("tCentroid x %f y %f sCentroid x %f y %f \n", tCentroid.x, tCentroid.y, sCentroid.x, sCentroid.y);
+    printf("distSum %f  var d  %f  var k  %i\n", distSum, d, k);
     double x = ((distSum + 2 * d) / (k + 4) / d);
+    printf("value x %f\n", x);
     Point sPoint = lerp(sCentroid, tCentroid, x);
+    double result = 1 - x;
+    // printf("1-x is %f\n", result);
     Point tPoint = lerp(sCentroid, tCentroid, 1 - x);
+    // printf("sPoint x %2.f y %2.f tPoint x %2.f y %2.f \n", sPoint.x, sPoint.y, tPoint.x, tPoint.y);
     delta = tPoint - sPoint;
+    // printf("delta x %2.f y %2.f\n", delta.x, delta.y);
     double inkValueCombined = delta.norm();
+    printf("start inkvaluecombined %f\n", inkValueCombined);
     for (auto n : {this, other}) {
+        delta = *n->getS() - sPoint;
+        inkValueCombined += delta.norm();
         for (auto child : *n->getChildren()) {
             delta = *child->getS() - sPoint;
             inkValueCombined += delta.norm();
         }
     }
+    printf("after first loop inkvaluecombined %f\n", inkValueCombined);
     for (auto n : {this, other}) {
+        delta = *n->getT() - tPoint;
+        inkValueCombined += delta.norm();
         for (auto child : *n->getChildren()) {
             delta = *child->getT() - tPoint;
             inkValueCombined += delta.norm();
         }
     }
+    printf("inkValueCombined: %f\n", inkValueCombined);
     if (sp != nullptr) *sp = sPoint;
     if (tp != nullptr) *tp = tPoint;
     if (sCentroidp != nullptr) *sCentroidp = sCentroid;
