@@ -55,19 +55,12 @@ double BaseNode::calculateBundle(BaseNode *other,
 
     Point delta = tCentroid - sCentroid;
     double d = delta.norm();
-    // printf("tCentroid x %f y %f sCentroid x %f y %f \n", tCentroid.x, tCentroid.y, sCentroid.x, sCentroid.y);
-    printf("distSum %f  var d  %f  var k  %i\n", distSum, d, k);
     double x = ((distSum + 2 * d) / (k + 4) / d);
-    printf("value x %f\n", x);
     Point sPoint = lerp(sCentroid, tCentroid, x);
     double result = 1 - x;
-    // printf("1-x is %f\n", result);
     Point tPoint = lerp(sCentroid, tCentroid, 1 - x);
-    // printf("sPoint x %2.f y %2.f tPoint x %2.f y %2.f \n", sPoint.x, sPoint.y, tPoint.x, tPoint.y);
     delta = tPoint - sPoint;
-    // printf("delta x %2.f y %2.f\n", delta.x, delta.y);
     double inkValueCombined = delta.norm();
-    printf("start inkvaluecombined %f\n", inkValueCombined);
     for (auto n : {this, other}) {
         delta = *n->getS() - sPoint;
         inkValueCombined += delta.norm();
@@ -76,7 +69,6 @@ double BaseNode::calculateBundle(BaseNode *other,
             inkValueCombined += delta.norm();
         }
     }
-    printf("after first loop inkvaluecombined %f\n", inkValueCombined);
     for (auto n : {this, other}) {
         delta = *n->getT() - tPoint;
         inkValueCombined += delta.norm();
@@ -85,7 +77,6 @@ double BaseNode::calculateBundle(BaseNode *other,
             inkValueCombined += delta.norm();
         }
     }
-    printf("inkValueCombined: %f\n", inkValueCombined);
     if (sp != nullptr) *sp = sPoint;
     if (tp != nullptr) *tp = tPoint;
     if (sCentroidp != nullptr) *sCentroidp = sCentroid;
