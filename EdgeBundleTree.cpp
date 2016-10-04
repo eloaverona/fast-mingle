@@ -3,7 +3,9 @@
 
 double BaseNode::calculateBundleInkSavings(BaseNode *other) {
   double newInk = calculateBundle(other, nullptr, nullptr, nullptr, nullptr);
-  return getInk() + other->getInk() - newInk;
+  double thisInk = hasBundle() ? getBundle()->getInk() : getInk();
+  double otherInk = other->hasBundle() ? other->getBundle()->getInk() : other->getInk();
+  return thisInk + otherInk - newInk;
 }
 
 double BaseNode::calculateBundle(BaseNode *other,

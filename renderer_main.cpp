@@ -67,7 +67,6 @@ void renderBundler() {
         Point s = pointMap[edge.point1];
         Point t = pointMap[edge.point2];
         drawLine(&s, &t, edge.weight);
-        printf("%u\n", edge.point1);
     }
     glFlush();
 }
