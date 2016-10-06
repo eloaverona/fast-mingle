@@ -259,6 +259,16 @@ public:
 private:
     PointId _maxPointId;     // The largest original point id.
 
+    /**
+     * Writes a bundle to the output file.
+     * @param nf The nodes file to write to.
+     * @param ef The edges file to write to.
+     * @param seen A set of points that have been already seen.
+     * @param idMap A map of points with the point id as key and the point as value.
+     * @param n The node to write a bundle from.
+     * @param s2 The source point in the node. This is one of the two points in the edge.
+     * @param t2 The target point in the node. This is one of the two points in the edge.
+     */
     void writeBundle(FILE *nf, FILE *ef,
                      std::unordered_set<PointId> &seen, std::unordered_map<PointId, PointId> &idMap,
                      BaseNode *n, Point *s, Point *t) {
@@ -267,6 +277,7 @@ private:
 
         // Write out each point...
         for (auto p : {s2, t2}) {
+        	// If the point hasn't been seen.
             if (seen.find(p->id) == seen.end()) {
                 seen.insert(p->id);
                 PointId id = idMap[p->id];
@@ -278,6 +289,7 @@ private:
             }
         }
         fprintf(ef, " %u:%u:%d", idMap[s2->id], idMap[t2->id], n->getWeight());
+        // Write the edges of this bundle.
         for (auto c : *n->getChildren()) {
             writeBundle(nf, ef, seen, idMap, c, nullptr, s2);
             writeBundle(nf, ef, seen, idMap, c, t2, nullptr);

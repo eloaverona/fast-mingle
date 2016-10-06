@@ -115,6 +115,7 @@ void BundleNode::addChild(BaseNode *other) {
 }
 
 void BaseNode::bundleWith(BaseNode *other) {
+
     if (!this->hasBundle() && !other->hasBundle()) {
         // If neither are bundled, bundle them with a new bundle
         new BundleNode(this, (EdgeNode *)other);
