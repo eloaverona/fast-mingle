@@ -59,9 +59,13 @@ void EdgeBundler::doMingle() {
                 double maxInkSaved = 0.0;
                 BaseNode *bestNeighbor = nullptr;
                 for (auto np : neighbors) {
-                	BaseNode node1 = edge.hasBundle() ? edge : edge.getBundle();
-                	BaseNode node2 = np.hasBundle() ? np : np.getBundle();
-                    double inkSaved = edge.calculateBundleInkSavings(np);
+                	/**
+                	 * To calculate the bundle ink savings correctly, we should
+                	 * take into account the ink used by the entire bundle that
+                	 * the edge is connected to.
+                	 **/
+                	BaseNode *neighborEdgeOrBundle = np->hasBundle() ? np->getBundle() : np;
+                    double inkSaved = edge.calculateBundleInkSavings(neighborEdgeOrBundle);
                     if (inkSaved > maxInkSaved) {
                         maxInkSaved = inkSaved;
                         bestNeighbor = np;
