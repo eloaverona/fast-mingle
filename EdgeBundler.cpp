@@ -5,6 +5,13 @@ EdgeBundler::EdgeBundler(std::vector<Point> *points, std::vector<EdgeNode> *edge
 }
 
 void EdgeBundler::rebuildIndex() {
+	rootNodes.clear();
+	EdgeBundleIterator *iterator  = getTree().rootIterator();
+	BaseNode *rootNode = iterator->next();
+	while (rootNode != nullptr) {
+		rootNodes.push_back(rootNode);
+		rootNode = iterator->next();
+	}
     if (annTree != nullptr) delete(annTree);
     if (annPoints != nullptr)  annDeallocPts(annPoints);
     annPoints = annAllocPts(getNumRootNodes(), 4);
@@ -41,7 +48,7 @@ void EdgeBundler::findNeighbors(BaseNode *target, int n, std::vector<BaseNode *>
     annTree->annkSearch(queryPoint, n, indices, dists);
     neighbors.resize(n);
     for (int j = 0; j < n; ++j) {
-        neighbors[j] = &(*_edges)[indices[j]];
+        neighbors[j] = rootNodes[indices[j]];
     }
 }
 
@@ -53,9 +60,9 @@ void EdgeBundler::doMingle() {
     do {
         numBundled = 0;
         printf("Iter: %d\n", iter++);
-        for (auto &edge : *_edges) {
-            if (!edge.hasBundle()) {
-                findNeighbors(&edge, numNeighbors, neighbors);
+        for (auto edge : rootNodes) {
+            if (!edge->hasBundle()) {
+                findNeighbors(edge, numNeighbors, neighbors);
                 double maxInkSaved = 0.0;
                 BaseNode *bestNeighbor = nullptr;
                 for (auto np : neighbors) {
@@ -64,7 +71,7 @@ void EdgeBundler::doMingle() {
                 	 * take into account the ink used by the entire bundle that
                 	 * the edge is connected to.
                 	 **/
-                	BaseNode *node1 = edge.hasBundle() ? (BaseNode *) edge.getBundle() : (BaseNode *) &edge;
+                	BaseNode *node1 = edge->hasBundle() ? edge->getBundle() : edge;
                 	BaseNode *node2 = np->hasBundle() ? np->getBundle() : np;
                     double inkSaved = node1->calculateBundleInkSavings(node2);
                     if (inkSaved > maxInkSaved) {
@@ -73,14 +80,14 @@ void EdgeBundler::doMingle() {
                     }
                 }
                 if (bestNeighbor != nullptr) {
-                    edge.bundleWith(bestNeighbor);
+                    edge->bundleWith(bestNeighbor);
                     printf("bundling %u %u and %u %u\n",
-                           edge.getS()->id, edge.getT()->id,
+                           edge->getS()->id, edge->getT()->id,
                            bestNeighbor->getS()->id, bestNeighbor->getT()->id);
                     numBundled++;
                 }
             }
-            printf("Bundled %d of %ld\n", numBundled, _edges->size());
+            printf("Bundled %d of %ld\n", numBundled, rootNodes.size());
         }
     } while (numBundled > 0);
 }

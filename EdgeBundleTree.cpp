@@ -26,28 +26,34 @@ double BaseNode::calculateBundle(BaseNode *other,
     u = u / u.norm();
     double dist, distSum = 0, maxDist = 0;
     int k = 0;
-    for (auto n : {this, other}) {
-      Point v = *n->getS() - sCentroid;
-      dist = u * v;
-      maxDist = maxDist < dist ? dist : maxDist;
-      distSum += dist;
-      k += 1;
-      for (auto child : *n->getChildren()) {
-          Point v = *child->getS() - sCentroid;
-          dist = u * v;
-          maxDist = maxDist < dist ? dist : maxDist;
-          distSum += dist;
-          k += 1;
+    for (auto n : {other, this}) {
+      if (n->isBundle()){
+          for (auto child : *n->getChildren()) {
+              Point v = *child->getS() - sCentroid;
+              dist = u * v;
+              maxDist = maxDist < dist ? dist : maxDist;
+              distSum += dist;
+              k += 1;
+          }
+      } else {
+		  Point v = *n->getS() - sCentroid;
+		  dist = u * v;
+		  maxDist = maxDist < dist ? dist : maxDist;
+		  distSum += dist;
+		  k += 1;
       }
     }
-    for (auto n : {this, other}) {
-      Point v = *n->getT() - tCentroid;
-      dist = -(u * v);
-      maxDist = maxDist < dist ? dist : maxDist;
-      distSum += dist;
-      k += 1;
-      for (auto child : *n->getChildren()) {
-          Point v = *child->getT() - tCentroid;
+    for (auto n : {other, this}) {
+      if (n->isBundle()){
+    	  for (auto child : *n->getChildren()) {
+    	      Point v = *child->getT() - tCentroid;
+    	      dist = -(u * v);
+    	      maxDist = maxDist < dist ? dist : maxDist;
+    	      distSum += dist;
+    	      k += 1;
+    	  }
+      } else {
+          Point v = *n->getT() - tCentroid;
           dist = -(u * v);
           maxDist = maxDist < dist ? dist : maxDist;
           distSum += dist;
