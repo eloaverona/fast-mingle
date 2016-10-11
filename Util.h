@@ -13,15 +13,13 @@ static const int UNGROUPED = -1;
 
 typedef uint32_t PointId;
 
-static PointId numPoints = 0;
-
 struct Point {
   float x = 0, y = 0;
   PointId id;
 
-  Point(double x2, double y2) : x((float)x2), y((float)y2), id(++numPoints) {}
-  Point(float x2, float y2) : x(x2), y(y2), id(++numPoints) {}
-  Point() : x(0.0f), y(0.0f), id(POINT_ID_NONE) {}
+  Point(double x2, double y2) : x((float)x2), y((float)y2) {}
+  Point(float x2, float y2) : x(x2), y(y2) {}
+  Point() : x(0.0f), y(0.0f) {}
   Point operator+(Point &p);
   Point operator-(Point &p);
   Point operator*(int k);
@@ -46,7 +44,5 @@ struct Edge {
 };
 
 Point lerp(const Point &a, const Point &b, const double delta);
-double costFunction(std::vector<Point> &S, std::vector<Point> &T, Point &sPoint,
-                    Point &tPoint);
 
 #endif // MINGLEC_POINT_H

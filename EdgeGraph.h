@@ -1,40 +1,91 @@
-//
-// Created by Shilad.Sen on 9/3/16.
-//
-
 #ifndef MINGLEC_EDGEGRAPH_H
 #define MINGLEC_EDGEGRAPH_H
 
-
 #include "Util.h"
-
-#define ID_NONE    0
-
-typedef uint32_t GraphNodeId;
+#include <unordered_set>
 
 
-struct GraphNode {
-    GraphNodeId _id;                // same as index in vector below
-    PointId _s;                     // point ids
-    PointId _t;                     // point ids
-    GraphNodeId _parent = ID_NONE;  // could be ID_NONE
-    PointId *_children = nullptr;   // null for leafs, terminated by ID_NONE otherwise
+typedef uint32_t EdgeNodeId;
+
+
+class EdgeNode {
+public:
+    EdgeNode(PointId pointOne, PointId pointTwo) : _pointOne(pointOne), _pointTwo(pointTwo) {}
+
+    ~EdgeNode();
+
+	EdgeNode* getParent() {
+		return _parent;
+	}
+
+	void setParent(EdgeNode *parent) {
+		_parent = parent;
+	}
+
+	PointId getPointOne() const {
+		return _pointOne;
+	}
+
+	void setPointOne(PointId pointOne) {
+		_pointOne = pointOne;
+	}
+
+	PointId getPointTwo() const {
+		return _pointTwo;
+	}
+
+	void setPointTwo(PointId pointTwo) {
+		_pointTwo = pointTwo;
+	}
+
+private:
+	/**
+	 * The first point of the edge.
+	 */
+    PointId _pointOne;
+    /**
+     * The second point of the edge.
+     */
+    PointId _pointTwo;
+
+    /**
+     * The parent edge of this node.
+     */
+    EdgeNode *_parent = nullptr;
+
+    /**
+     * The children of this edge node.
+     */
+    std::vector<EdgeNode> *_children = nullptr;
+
+    /**
+     * The weight of this node.
+     */
     int weight = 1;
-
-    GraphNode(PointId s, PointId t, GraphNodeId id) : _s(s), _t(t), _id(id) {}
 };
+
 
 class EdgeGraph {
 public:
     EdgeGraph() {}
-
-static EdgeGraph *Read(char *nodePath, char *edgePath);
-
+    ~EdgeGraph() {}
+    void readEdgesFromFile(const char *edgesFilePath);
 
 private:
-    GraphNodeId  _maxId = 0;
-    std::vector<Point>_points;     // indexed by point id;
-    std::vector<GraphNode>_nodes;
+    /**
+     * A list of points in this graph. The index of the point in the vector
+     * determines the point's id.
+     */
+    std::vector<Point>_points;
+
+    /**
+     * The list of the top-level nodes in this graph.
+     */
+    std::vector<EdgeNode*> _nodes;
+
+    void readNextEdgeInFile(FILE *filePointer, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId);
+
+    void setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId);
 };
 
 #endif //MINGLEC_EDGEGRAPH_H
