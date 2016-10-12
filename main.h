@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "EdgeGraph.h"
+#include "EdgeNode.h"
 #include "Util.h"
 
 #endif //MINGLEC_MAIN_H

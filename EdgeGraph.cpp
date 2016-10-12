@@ -1,6 +1,4 @@
-
 #include "EdgeGraph.h"
-#include <unordered_set>
 
 void EdgeGraph::readEdgesFromFile(const char *edgesFilePath) {
     _nodes.clear();
@@ -22,18 +20,18 @@ void EdgeGraph::readEdgesFromFile(const char *edgesFilePath) {
 }
 
 void EdgeGraph::readNextEdgeInFile(FILE *filePointer, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId) {
-		Point pointOne;
-		Point pointTwo;
+		Point pointA;
+		Point pointB;
 
-		fscanf(filePointer, "%f", &pointOne.x);
-		fscanf(filePointer, "%f", &pointOne.y);
-		fscanf(filePointer, "%f", &pointTwo.x);
-		fscanf(filePointer, "%f", &pointTwo.y);
+		fscanf(filePointer, "%f", &pointA.x);
+		fscanf(filePointer, "%f", &pointA.y);
+		fscanf(filePointer, "%f", &pointB.x);
+		fscanf(filePointer, "%f", &pointB.y);
 
-		setIdOfPoint(&pointOne, seen, nextPointId);
-		setIdOfPoint(&pointTwo, seen, nextPointId);
+		setIdOfPoint(&pointA, seen, nextPointId);
+		setIdOfPoint(&pointB, seen, nextPointId);
 
-		EdgeNode *node = new EdgeNode(pointOne.id, pointTwo.id);
+		EdgeNode *node = new EdgeNode(&pointA, &pointB);
 		_nodes.push_back(node);
 }
 
@@ -48,3 +46,21 @@ void EdgeGraph::setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher
 		point->id = foundPoint->id;
 	}
 }
+
+void EdgeGraph::rebuildAnnIndex() {
+    if (annTree != nullptr) delete(annTree);
+    if (annPoints != nullptr)  annDeallocPts(annPoints);
+    annPoints = annAllocPts(_nodes.size(), 4);
+	assert(annPoints != nullptr);
+	for (int i = 0; i < _nodes.size(); ++i) {
+		EdgeNode *edge = _nodes[i];
+		ANNpoint p = annPoints[i];
+		p[0] = edge->getPointOne()->x;
+		p[1] = edge->getPointOne()->y;
+		p[2] = edge->getPointTwo()->x;
+		p[3] = edge->getPointTwo()->y;
+	}
+	annTree = new ANNkd_tree(annPoints, _nodes.size(), 4);
+	assert(annTree != nullptr);
+}
+
