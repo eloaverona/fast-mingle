@@ -18,6 +18,20 @@ bool Point::operator==(const Point &other) const {
   return x == other.x && y == other.y;
 }
 
+bool Point::operator<(const Point &rightHandSide) {
+	if (x < rightHandSide.x) {
+		return true;
+	} else if (rightHandSide.x > x) {
+		return false;
+	} else {
+		if (y < rightHandSide.y) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
 std::size_t PointHasher::operator()(const Point &p) const {
   return std::hash<double>()(p.x) ^ (std::hash<double>()(p.y) << 1);
 }

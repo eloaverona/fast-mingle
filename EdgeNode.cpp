@@ -15,6 +15,8 @@ EdgeNode::EdgeNode(Point *pointA, Point *pointB){
 	_ink = &_pointTwo - &_pointOne;
 }
 
-void EdgeNode::estimateInkSaved(EdgeNode *other) {
-	int currentInk = this->getInk() + other->getInk();
+double EdgeNode::estimateInkSaved(EdgeNode *other) {
+	double inkWhenbundled = 0;
+	double currentInk = this->getInk() + other->getInk();
+	return currentInk - inkWhenBundled;
 }

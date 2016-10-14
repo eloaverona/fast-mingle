@@ -44,9 +44,9 @@ public:
 
 	void addChildAtPointTwo(EdgeNode *child);
 
-	void estimateInkSaved(EdgeNode *other);
+	double estimateInkSaved(EdgeNode *other);
 
-	int getInk() const {
+	double getInk() const {
 		return _ink;
 	}
 
@@ -90,7 +90,7 @@ private:
      * The ink of this node. This ink is the difference between point one
      * and point two.
      */
-    int _ink = 0;
+    double _ink = 0;
 };
 
 #endif //MINGLEC_EDGENODE_H
