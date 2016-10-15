@@ -10,6 +10,8 @@ Point Point::operator-(Point &p) { return {x - p.x, y - p.y}; }
 
 Point Point::operator*(int k) { return {k * x, k * y}; }
 
+Point Point::operator*(double k) { return {k * x, k * y}; }
+
 double Point::operator*(Point &p) { return x * p.x + y * p.y; }
 
 Point Point::operator/(double k) { return {x / k, y / k}; }

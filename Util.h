@@ -23,6 +23,7 @@ struct Point {
   Point operator+(Point &p);
   Point operator-(Point &p);
   Point operator*(int k);
+  Point operator*(double k);
   Point operator/(double k);
   bool operator==(const Point &other) const;
   double operator*(Point &p);

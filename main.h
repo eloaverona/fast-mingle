@@ -8,6 +8,5 @@
 #include "EdgeGraph.h"
 #include "EdgeNode.h"
 #include "Util.h"
-#include "PointBiMultiMap.h"
 
 #endif //MINGLEC_MAIN_H

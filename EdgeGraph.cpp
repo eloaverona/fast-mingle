@@ -1,4 +1,5 @@
 #include "EdgeGraph.h"
+#include <cmath>
 
 void EdgeGraph::readEdgesFromFile(const char *edgesFilePath) {
     _nodes.clear();
@@ -63,4 +64,47 @@ void EdgeGraph::rebuildAnnIndex() {
 	annTree = new ANNkd_tree(annPoints, _nodes.size(), 4);
 	assert(annTree != nullptr);
 }
+
+void EdgeGraph::doMingle() {}
+
+double EdgeGraph::estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode *node2) {
+	int totalWeight = node1->getWeight() + node2->getWeight();
+	Point meetingPointOne = getMeetingPointOneForNodes(node1, node2);
+	Point meetingPointTwo = getMeetingPointTwoForNodes(node1, node2);
+	Point differenceVector = {meetingPointTwo - meetingPointOne} * LOOKUP_RANGE;
+	Point normalVector = {meetingPointTwo - meetingPointOne};
+	Point normalVector = normalVector / normalVector.norm();
+}
+
+double EdgeGraph::goldenSectionSearch(double lowerBound, double upperBound, double tolerance, Point meetingPointToOptimize, Point meetingPointMoveDirection, std::vector<Point*> meetingPointToOptimizeChildren,  Point otherMeetingPoint) {
+	double goldenDifference = (upperBound - lowerBound) / GOLD_RATIO;
+	double newUpperBound = upperBound - goldenDifference;
+	double newLowerBound = lowerBound + goldenDifference;
+	int loopCountdown = GOLD_SECTION_SEARCH_MAX_LOOPS;
+	while (abs(newUpperBound - newLowerBound) > tolerance && loopCountdown > 0) {
+		double inkForNewUpperBound = getInkForBound(meetingPointToOptimize, meetingPointMoveDirection, newUpperBound, otherMeetingPoint, meetingPointToOptimizeChildren);
+		double inkForNewLowerBound = getInkForBound(meetingPointToOptimize, meetingPointMoveDirection, newLowerBound, otherMeetingPoint, meetingPointToOptimizeChildren);
+		if (inkForNewUpperBound < inkForNewLowerBound) {
+			upperBound = newUpperBound;
+		} else {
+			lowerBound = newLowerBound;
+		}
+		double newUpperBound = upperBound - goldenDifference;
+		double newLowerBound = lowerBound + goldenDifference;
+		loopCountdown--;
+	}
+}
+
+double EdgeGraph::getInkForBound(Point *meetingPointToOptimize, Point meetingPointMoveDirection, double meetingPointMoveFactor, Point *otherMeetingPoint, std::vector<Point*> children) {
+	Point newCentroid = meetingPointToOptimize + (meetingPointMoveDirection * meetingPointMoveFactor);
+	double inkSum = 0.0;
+	for(Point* child : children) {
+		double distance = sqrt((child->x - newCentroid->x) ^ 2 - (child->y - newCentroid->y) ^ 2);
+		inkSum += inkSum;
+	}
+	inkSum += (otherMeetingPoint - newCentroid).norm();
+	return inkSum;
+}
+
+
 
