@@ -55,19 +55,11 @@ private:
     /**
      * Gets the centroid of the first points of node 1 and node 2.
      */
-    Point getMeetingPointOneForNodes(EdgeNode *node1, EdgeNode *node2) {
-    	return {node1->getPointOne()->x * node1->getWeight() + node2->getPointOne()->x * node2->getWeight(),
-    			node1->getPointOne()->y * node1->getWeight() + node2->getPointOne()->y * node2->getWeight()};
+    PointOrStar getCentroidForPoints(PointOrStar *point1, PointOrStar *point2) {
+    	int combinedWeight = point1->getWeight() + point2->getWeight();
+    	double x = (point1->getX() * point1->getWeight() + point2->getX() * point2->getWeight()) / combinedWeight;
+    	double y = (point1->getY() * point1->getWeight() + point2->getY() * point2->getWeight()) / combinedWeight;
     }
-
-    /**
-     * Gets the centroid of the second points of node 1 and node 2.
-     */
-    Point getMeetingPointTwoForNodes(EdgeNode *node1, EdgeNode *node2) {
-    	return { node1->getPointTwo()->x * node1->getWeight() + node2->getPointTwo()->x * node2->getWeight(),
-    			 node1->getPointTwo()->y * node1->getWeight() + node2->getPointTwo()->y * node2->getWeight()};
-    }
-
     /**
      *
      */

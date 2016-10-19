@@ -45,10 +45,15 @@ public:
 		_y = y;
 	}
 
+	int getWeight() {
+		return _weight;
+	}
+
 private:
 	std::vector<PointOrStar> _children;
 	double _x;
 	double _y;
+	int _weight;
 };
 
 #endif /* POINTORSTAR_H_ */

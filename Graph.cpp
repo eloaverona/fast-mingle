@@ -56,10 +56,10 @@ void Graph::rebuildAnnIndex() {
 void Graph::doMingle() {}
 
 double Graph::estimateSavedInkWhenTwoEdgesBundled(Edge *node1, Edge *node2) {
-	int totalWeight = node1->getWeight() + node2->getWeight();
+
 	PointOrStar meetingPointOne = getMeetingPointOneForNodes(node1, node2);
 	PointOrStar meetingPointTwo = getMeetingPointTwoForNodes(node1, node2);
-	EdgeNode node = EdgeNode(meetingPointOne, meetingPointTwo);
+	Edge node = Edge(meetingPointOne, meetingPointTwo);
 	node.addChildAtPointOne(node1);
 	node.addChildAtPointTwo(node2);
 	Point differenceVector = {meetingPointTwo - meetingPointOne};
