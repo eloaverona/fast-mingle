@@ -1,12 +1,9 @@
-#ifndef MINGLEC_MAIN_H
-#define MINGLEC_MAIN_H
+#ifndef MINGLE_MAIN_H
+#define MINGLE_MAIN_H
 
+#include <Graph.h>
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
-
-#include "EdgeGraph.h"
-#include "EdgeNode.h"
-#include "Util.h"
 
 #endif //MINGLEC_MAIN_H

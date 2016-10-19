@@ -1,7 +1,7 @@
-#include "EdgeGraph.h"
+#include "Graph.h"
 #include <cmath>
 
-void EdgeGraph::readEdgesFromFile(const char *edgesFilePath) {
+void Graph::readEdgesFromFile(const char *edgesFilePath) {
     _nodes.clear();
     _points.clear();
 
@@ -20,7 +20,7 @@ void EdgeGraph::readEdgesFromFile(const char *edgesFilePath) {
     fclose(filePointer);
 }
 
-void EdgeGraph::readNextEdgeInFile(FILE *filePointer, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId) {
+void Graph::readNextEdgeInFile(FILE *filePointer, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId) {
 		Point pointA;
 		Point pointB;
 
@@ -36,7 +36,7 @@ void EdgeGraph::readNextEdgeInFile(FILE *filePointer, std::unordered_set<Point, 
 		_nodes.push_back(node);
 }
 
-void EdgeGraph::setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId){
+void Graph::setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId){
 	std::unordered_set<Point, PointHasher>::const_iterator foundPoint = seen.find(*point);
 	if (foundPoint == seen.end()){
 		point->id = *nextPointId;
@@ -48,7 +48,7 @@ void EdgeGraph::setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher
 	}
 }
 
-void EdgeGraph::rebuildAnnIndex() {
+void Graph::rebuildAnnIndex() {
     if (annTree != nullptr) delete(annTree);
     if (annPoints != nullptr)  annDeallocPts(annPoints);
     annPoints = annAllocPts(_nodes.size(), 4);
@@ -65,9 +65,9 @@ void EdgeGraph::rebuildAnnIndex() {
 	assert(annTree != nullptr);
 }
 
-void EdgeGraph::doMingle() {}
+void Graph::doMingle() {}
 
-double EdgeGraph::estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode *node2) {
+double Graph::estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode *node2) {
 	int totalWeight = node1->getWeight() + node2->getWeight();
 	Point meetingPointOne = getMeetingPointOneForNodes(node1, node2);
 	Point meetingPointTwo = getMeetingPointTwoForNodes(node1, node2);
@@ -86,7 +86,7 @@ double EdgeGraph::estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode 
 			meetingPointTwo);
 }
 
-double EdgeGraph::goldenSectionSearch(double lowerBound, double upperBound, double tolerance, Point meetingPointToOptimize, Point meetingPointMoveDirection, std::vector<Point*> meetingPointToOptimizeChildren,  Point otherMeetingPoint) {
+double Graph::goldenSectionSearch(double lowerBound, double upperBound, double tolerance, Point meetingPointToOptimize, Point meetingPointMoveDirection, std::vector<Point*> meetingPointToOptimizeChildren,  Point otherMeetingPoint) {
 	double goldenDifference = (upperBound - lowerBound) / GOLD_RATIO;
 	double newUpperBound = upperBound - goldenDifference;
 	double newLowerBound = lowerBound + goldenDifference;
@@ -105,7 +105,7 @@ double EdgeGraph::goldenSectionSearch(double lowerBound, double upperBound, doub
 	}
 }
 
-double EdgeGraph::getInkForBound(Point *meetingPointToOptimize, Point meetingPointMoveDirection, double meetingPointMoveFactor, Point *otherMeetingPoint, std::vector<Point*> children) {
+double Graph::getInkForBound(Point *meetingPointToOptimize, Point meetingPointMoveDirection, double meetingPointMoveFactor, Point *otherMeetingPoint, std::vector<Point*> children) {
 	Point newCentroid = meetingPointToOptimize + (meetingPointMoveDirection * meetingPointMoveFactor);
 	double inkSum = 0.0;
 	for(Point* child : children) {

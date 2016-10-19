@@ -1,18 +1,16 @@
-#ifndef MINGLEC_EDGEGRAPH_H
-#define MINGLEC_EDGEGRAPH_H
+#ifndef MINGLE_GRAPH_H
+#define MINGLE_GRAPH_H
 
-#include "Util.h"
-#include "EdgeNode.h"
 #include "ANN/ANN.h"
 #include <unordered_set>
 
 /**
  * Represents the 4-dimensional graph, Γ, that has all the edges.
  */
-class EdgeGraph {
+class Graph {
 public:
-    EdgeGraph() {}
-    ~EdgeGraph() {}
+    Graph() {}
+    ~Graph() {}
     /**
      * Reads the edges from a file.
      */
@@ -82,7 +80,14 @@ private:
     			 node1->getPointTwo()->y * node1->getWeight() + node2->getPointTwo()->y * node2->getWeight()};
     }
 
+    /**
+     *
+     */
     double getInkToDrawEdgesBetweenNodeAndChildren(Point *node, std::vector<Point*> children);
+
+    /**
+     *
+     */
 
     const double LOOKUP_RANGE = 0.25;
 
@@ -94,4 +99,4 @@ private:
 
 };
 
-#endif //MINGLEC_EDGEGRAPH_H
+#endif //MINGLE_GRAPH_H

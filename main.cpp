@@ -1,5 +1,5 @@
+#include <Graph.h>
 #include "main.h"
-#include "EdgeGraph.h"
 
 using namespace std;
 
@@ -9,9 +9,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    EdgeGraph graph = EdgeGraph();
+    Graph graph = Graph();
     graph.readEdgesFromFile(argv[1]);
-
-
     return 0;
 }
