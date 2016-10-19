@@ -15,18 +15,22 @@ public:
 	Edge(PointOrStar point1, PointOrStar point2);
 	virtual ~Edge();
 
-	std::unordered_set<PointOrStar>& getPoints() {
+	void setPoints(PointOrStar point1, PointOrStar point2) {
+		assert(point1 != nullptr && point2 != nullptr);
+		_points = std::make_pair(point1, point2);
+	}
+
+	std::pair<PointOrStar, PointOrStar>& getPoints() {
 		return _points;
 	}
 
-	void setPoints(PointOrStar point1, PointOrStar point2) {
-		assert(point1 != nullptr && point2 != nullptr);
-		_points.insert(point1);
-		_points.insert(point2);
+	int getWeight() {
+		return _weight;
 	}
 
 private:
-	std::unordered_set<PointOrStar> _points;
+	std::pair<PointOrStar, PointOrStar> _points;
+	int _weight;
 };
 
 #endif /* EDGE_H_ */

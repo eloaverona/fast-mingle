@@ -10,11 +10,7 @@
 
 Edge::Edge(PointOrStar point1, PointOrStar point2) {
 	assert(point1 != nullptr && point2 != nullptr);
-	_points.insert(point1);
-	_points.insert(point2);
+	_points = std::make_pair(point1, point2);
 }
 
-Edge::~Edge() {
-	// TODO Auto-generated destructor stub
-}
 

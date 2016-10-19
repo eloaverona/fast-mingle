@@ -38,26 +38,27 @@ void Graph::readNextEdgeInFile(FILE *filePointer) {
 void Graph::rebuildAnnIndex() {
     if (annTree != nullptr) delete(annTree);
     if (annPoints != nullptr)  annDeallocPts(annPoints);
-    annPoints = annAllocPts(_nodes.size(), 4);
+    annPoints = annAllocPts(_edges.size(), 4);
 	assert(annPoints != nullptr);
-	for (int i = 0; i < _nodes.size(); ++i) {
-		EdgeNode *edge = _nodes[i];
+	for (int i = 0; i < _edges.size(); ++i) {
+		Edge *edge = _edges[i];
 		ANNpoint p = annPoints[i];
-		p[0] = edge->getPointOne()->x;
-		p[1] = edge->getPointOne()->y;
-		p[2] = edge->getPointTwo()->x;
-		p[3] = edge->getPointTwo()->y;
+		std::pair<PointOrStar, PointOrStar> points = edge->getPoints();
+		p[0] = points.first.getX();
+		p[1] = points.first.getY();
+		p[2] = points.second.getX();
+		p[3] = points.second.getY();
 	}
-	annTree = new ANNkd_tree(annPoints, _nodes.size(), 4);
+	annTree = new ANNkd_tree(annPoints, _edges.size(), 4);
 	assert(annTree != nullptr);
 }
 
 void Graph::doMingle() {}
 
-double Graph::estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode *node2) {
+double Graph::estimateSavedInkWhenTwoEdgesBundled(Edge *node1, Edge *node2) {
 	int totalWeight = node1->getWeight() + node2->getWeight();
-	Point meetingPointOne = getMeetingPointOneForNodes(node1, node2);
-	Point meetingPointTwo = getMeetingPointTwoForNodes(node1, node2);
+	PointOrStar meetingPointOne = getMeetingPointOneForNodes(node1, node2);
+	PointOrStar meetingPointTwo = getMeetingPointTwoForNodes(node1, node2);
 	EdgeNode node = EdgeNode(meetingPointOne, meetingPointTwo);
 	node.addChildAtPointOne(node1);
 	node.addChildAtPointTwo(node2);
