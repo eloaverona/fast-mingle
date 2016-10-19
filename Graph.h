@@ -37,20 +37,14 @@ private:
     ANNkd_tree *annTree = nullptr;
 
     /**
-     * A list of points in this graph. The index of the point in the vector
-     * determines the point's id.
-     */
-    std::vector<Point>_points;
-
-    /**
      * The list of the top-level nodes in this graph.
      */
-    std::vector<EdgeNode*> _nodes;
+    std::vector<Edge*> _edges;
 
     /**
      * Reads the next line of a file.
      */
-    void readNextEdgeInFile(FILE *filePointer, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId);
+    void readNextEdgeInFile(FILE *filePointer);
 
     /**
      * When reading points from the file, sets the id of a point if the point

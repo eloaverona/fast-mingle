@@ -1,39 +1,38 @@
 #include "Graph.h"
 #include <cmath>
+#include <cassert>
 
 void Graph::readEdgesFromFile(const char *edgesFilePath) {
-    _nodes.clear();
-    _points.clear();
+    _edges.clear();
 
     FILE *filePointer = fopen(edgesFilePath, "r");
     assert(filePointer != NULL);
 
     int numEdges;
     fscanf(filePointer, "%i", &numEdges);
-    _nodes.reserve(numEdges);
-    std::unordered_set<Point, PointHasher> seen;
-    PointId nextPointId = 0;
+    _edges.reserve(numEdges);
 	for (int i = 0; i < numEdges; ++i) {
-		readNextEdgeInFile(filePointer, seen, &nextPointId);
+		readNextEdgeInFile(filePointer);
 	}
-
     fclose(filePointer);
 }
 
-void Graph::readNextEdgeInFile(FILE *filePointer, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId) {
-		Point pointA;
-		Point pointB;
+void Graph::readNextEdgeInFile(FILE *filePointer) {
+		double pointAx;
+		double pointAy;
+		double pointBx;
+		double pointBy;
 
-		fscanf(filePointer, "%f", &pointA.x);
-		fscanf(filePointer, "%f", &pointA.y);
-		fscanf(filePointer, "%f", &pointB.x);
-		fscanf(filePointer, "%f", &pointB.y);
+		fscanf(filePointer, "%f", pointAx);
+		fscanf(filePointer, "%f", pointAy);
+		fscanf(filePointer, "%f", pointBx);
+		fscanf(filePointer, "%f", pointBy);
 
-		setIdOfPoint(&pointA, seen, nextPointId);
-		setIdOfPoint(&pointB, seen, nextPointId);
+		PointOrStar point1 = new PointOrStar(pointAx, pointAy);
+		PointOrStar point2 = new PointOrStar(pointBx, pointBy);
 
-		EdgeNode *node = new EdgeNode(&pointA, &pointB);
-		_nodes.push_back(node);
+		Edge *node = new Edge(point1, point2);
+		_edges.push_back(node);
 }
 
 void Graph::setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId){
