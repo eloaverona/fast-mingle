@@ -43,3 +43,11 @@ std::vector<Point*> EdgeNode::getChildrenAtPointTwoPoints() {
 	}
 	return points;
 }
+
+void EdgeNode::addChildAtPointOne(EdgeNode *child) {
+	_childrenAtPointOne.push_back(child);
+}
+
+void EdgeNode::addChildAtPointTwo(EdgeNode *child) {
+	_childrenAtPointTwo.push_back(child);
+}

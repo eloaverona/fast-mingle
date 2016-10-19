@@ -44,6 +44,7 @@ public:
 	}
 
 	Point *getPointTwo() const {
+		if (_hasParent)
 		return _pointTwo;
 	}
 

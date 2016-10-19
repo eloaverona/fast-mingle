@@ -23,6 +23,9 @@ public:
      */
     void doMingle();
 
+    /**
+     * Estimates the ink saved when two edges are bundled.
+     */
     double estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode *node2);
 
 private:
@@ -82,6 +85,8 @@ private:
     double getInkToDrawEdgesBetweenNodeAndChildren(Point *node, std::vector<Point*> children);
 
     const double LOOKUP_RANGE = 0.25;
+
+    const double TOLERANCE_RANGE = 0.01;
 
     const double GOLD_RATIO = 1.618034;
 

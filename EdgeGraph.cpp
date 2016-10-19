@@ -71,9 +71,19 @@ double EdgeGraph::estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode 
 	int totalWeight = node1->getWeight() + node2->getWeight();
 	Point meetingPointOne = getMeetingPointOneForNodes(node1, node2);
 	Point meetingPointTwo = getMeetingPointTwoForNodes(node1, node2);
-	Point differenceVector = {meetingPointTwo - meetingPointOne} * LOOKUP_RANGE;
-	Point normalVector = {meetingPointTwo - meetingPointOne};
-	Point normalVector = normalVector / normalVector.norm();
+	EdgeNode node = EdgeNode(meetingPointOne, meetingPointTwo);
+	node.addChildAtPointOne(node1);
+	node.addChildAtPointTwo(node2);
+	Point differenceVector = {meetingPointTwo - meetingPointOne};
+	double differenceVectorLength = differenceVector.norm();
+	goldenSectionSearch(
+			-differenceVectorLength * LOOKUP_RANGE,
+			differenceVectorLength * LOOKUP_RANGE,
+			differenceVectorLength * TOLERANCE_RANGE,
+			meetingPointOne,
+			differenceVector,
+			meetingPointOne->getChildrenAtPointOnePoints(),
+			meetingPointTwo);
 }
 
 double EdgeGraph::goldenSectionSearch(double lowerBound, double upperBound, double tolerance, Point meetingPointToOptimize, Point meetingPointMoveDirection, std::vector<Point*> meetingPointToOptimizeChildren,  Point otherMeetingPoint) {
