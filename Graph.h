@@ -47,12 +47,6 @@ private:
     void readNextEdgeInFile(FILE *filePointer);
 
     /**
-     * When reading points from the file, sets the id of a point if the point
-     * already been seen. If not, it assigns a new id to it.
-     */
-    void setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId);
-
-    /**
      * Rebuilds the ANN index to include all the root nodes. This allows us
      * to search with the new list of root nodes.
      */

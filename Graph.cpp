@@ -35,18 +35,6 @@ void Graph::readNextEdgeInFile(FILE *filePointer) {
 		_edges.push_back(node);
 }
 
-void Graph::setIdOfPoint(Point *point, std::unordered_set<Point, PointHasher> seen, PointId *nextPointId){
-	std::unordered_set<Point, PointHasher>::const_iterator foundPoint = seen.find(*point);
-	if (foundPoint == seen.end()){
-		point->id = *nextPointId;
-		_points.push_back(*point);
-		seen.insert(*point);
-		++*nextPointId;
-	} else {
-		point->id = foundPoint->id;
-	}
-}
-
 void Graph::rebuildAnnIndex() {
     if (annTree != nullptr) delete(annTree);
     if (annPoints != nullptr)  annDeallocPts(annPoints);
