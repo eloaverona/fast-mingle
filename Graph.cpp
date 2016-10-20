@@ -1,6 +1,7 @@
 #include "Graph.h"
 #include <cmath>
 #include <cassert>
+#include <unordered_set>
 
 void Graph::readEdgesFromFile(const char *edgesFilePath) {
     _edges.clear();
@@ -56,7 +57,22 @@ void Graph::rebuildAnnIndex() {
 void Graph::doMingle() {}
 
 double Graph::estimateSavedInkWhenTwoEdgesBundled(Edge *node1, Edge *node2) {
-
+	node1->getPoints()
+	std::unordered_set<PointOrStar> sourceSet;
+	std::unordered_set<PointOrStar> targetSet;
+	if( getDistanceBetweenPoints(node1->getPoints().first, node2->getPoints().first) <
+		getDistanceBetweenPoints(node1->getPoints().first, node2->getPoints().second)) {
+		sourceSet.insert(node1->getPoints().first);
+		sourceSet.insert(node1->getPoints().second);
+		targetSet.insert(node2->getPoints().second);
+		targetSet.insert(node2->getPoints().first);
+	} else {
+		sourceSet.insert(node1->getPoints().first);
+		sourceSet.insert(node1->getPoints().first);
+		targetSet.insert(node2->getPoints().second);
+		targetSet.insert(node2->getPoints().second);
+	}
+	Edge bundledEdge = getBundledEdge(std::unordered_set<PointOrStar> sourceSet, std::unordered_set<PointOrStar> targetSet);
 	PointOrStar meetingPointOne = getMeetingPointOneForNodes(node1, node2);
 	PointOrStar meetingPointTwo = getMeetingPointTwoForNodes(node1, node2);
 	Edge node = Edge(meetingPointOne, meetingPointTwo);

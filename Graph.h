@@ -3,6 +3,7 @@
 
 #include "ANN/ANN.h"
 #include <unordered_set>
+#include <cmath>
 
 /**
  * Represents the 4-dimensional graph, Γ, that has all the edges.
@@ -24,7 +25,7 @@ public:
     /**
      * Estimates the ink saved when two edges are bundled.
      */
-    double estimateSavedInkWhenTwoEdgesBundled(EdgeNode *node1, EdgeNode *node2);
+    double estimateSavedInkWhenTwoEdgesBundled(Edge *node1, Edge *node2);
 
 private:
     /**
@@ -63,7 +64,12 @@ private:
     /**
      *
      */
-    double getInkToDrawEdgesBetweenNodeAndChildren(Point *node, std::vector<Point*> children);
+    double getInkToDrawEdgesBetweenNodeAndChildren(P *node, std::vector<Point*> children);
+
+    double getDistanceBetweenPoints(PointOrStar point1, PointOrStar point2) {
+    	return sqrt((point1.getX() - point2.getX())^2 + (point1.getY() - point2.getY())^2);
+    }
+
 
     /**
      *
