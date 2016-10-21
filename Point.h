@@ -12,8 +12,8 @@ struct Point {
   double x, y;
 
   Point operator-(Point& p);
+  Point operator+(Point& p);
   Point operator*(int k);
-  double norm();
 };
 
 #endif /* POINT_H_ */
