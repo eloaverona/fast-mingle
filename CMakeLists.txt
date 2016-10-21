@@ -10,7 +10,7 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory(ann_1.1.2)
 
-set(MINGLER_SOURCE_FILES main.cpp main.h EdgeGraph.cpp EdgeGraph.h EdgeNode.cpp EdgeGraph.h Util.cpp Util.h EdgeGraph.cpp EdgeGraph.h)
+set(MINGLER_SOURCE_FILES main.cpp main.h Graph.cpp Graph.h Edge.cpp Edge.h Point.cpp Point.h PointOrStar.h PointOrStar.h)
 set(RENDERER_SOURCE_FILES renderer_main.h renderer_main.cpp)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-register")
 add_executable(mingle ${MINGLER_SOURCE_FILES})

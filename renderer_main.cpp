@@ -1,11 +1,26 @@
 #include "renderer_main.h"
 #include <unordered_map>
+#include <cassert>
+#include <vector>
 
 using namespace std;
 
 const int WIDTH = 2000;
 const int HEIGHT = 1000;
 const double ZOOM_CONST = 1.9;
+
+typedef uint32_t PointId;
+
+struct Point {
+	PointId id;
+	double x, y;
+};
+
+struct Edge {
+  PointId point1;
+  PointId point2;
+  int weight;
+};
 
 double dataWidth;
 double dataHeight;

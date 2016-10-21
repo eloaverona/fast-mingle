@@ -3,7 +3,10 @@
 
 #include <cmath>
 #include <unordered_set>
+#include <vector>
 #include "ANN/ANN.h"
+#include "Edge.h"
+#include "PointOrStar.h"
 
 /**
  * Represents the 4-dimensional graph, Γ, that has all the edges.

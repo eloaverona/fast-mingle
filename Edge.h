@@ -9,6 +9,7 @@
 #define EDGE_H_
 #include <cassert>
 #include <unordered_set>
+#include "PointOrStar.h"
 
 class Edge {
  public:
@@ -33,8 +34,8 @@ class Edge {
   double _ink;
 
   double getDistanceBetweenPoints(PointOrStar point1, PointOrStar point2) {
-    return sqrt((point1.getX() - point2.getX()) ^
-                2 + (point1.getY() - point2.getY()) ^ 2);
+    return sqrt(pow((point1.getX() - point2.getX()), 2)
+    		+ pow(point1.getY() - point2.getY(), 2));
   }
 };
 
