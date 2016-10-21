@@ -9,7 +9,9 @@
 #include <cassert>
 
 PointOrStar::PointOrStar(double x, double y) {
-	assert(x != nullptr && y != nullptr);
-	_x = x;
-	_y = y;
+  assert(x != nullptr && y != nullptr);
+  _x = x;
+  _y = y;
+  _weight = 1;
+  _ink = 0;
 }
