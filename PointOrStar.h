@@ -42,7 +42,7 @@ class PointOrStar {
   double _ink;
 
   double distanceToPoint(PointOrStar point) {
-    sqrt((_x - point.getX()) ^ 2 + (_y - point.getY()) ^ 2);
+    sqrt(pow((_x - point.getX()), 2) + pow((_y - point.getY()), 2));
   }
 };
 

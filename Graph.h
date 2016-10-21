@@ -7,6 +7,7 @@
 #include "ANN/ANN.h"
 #include "Edge.h"
 #include "PointOrStar.h"
+#include "Point.h"
 
 /**
  * Represents the 4-dimensional graph, Γ, that has all the edges.
@@ -55,16 +56,6 @@ class Graph {
    * Estimates the ink saved when two edges are bundled.
    */
   double estimateSavedInkWhenTwoEdgesBundled(Edge *node1, Edge *node2);
-
-  /**
-   * Gets the distance between two points
-   *
-   * @return The distance between two points.
-   */
-  double getDistanceBetweenPoints(PointOrStar point1, PointOrStar point2) {
-    return sqrt((point1.getX() - point2.getX()) ^
-                2 + (point1.getY() - point2.getY()) ^ 2);
-  }
 
   /**
    * Estimates the total ink if the two nodes were to be bundled together.
@@ -129,18 +120,26 @@ class Graph {
                              std::pair<PointOrStar, PointOrStar> sourceSet);
 
   /**
+   * Gets the distance between two points
+   *
+   * @return The distance between two points.
+   */
+  double getDistanceBetweenPoints(PointOrStar point1, PointOrStar point2) {
+    return sqrt(pow((point1.getX() - point2.getX()), 2 )+ pow((point1.getY() - point2.getY()),  2));
+  }
+
+  /**
    * Gets the distance between two points.
    */
   double getDistanceBetweenPoints(PointOrStar point1, Point point2) {
-    return sqrt((point1.getX() - point2.x) ^ 2 + (point1.getY() - point2.y) ^
-                2);
+    return sqrt(pow((point1.getX() - point2.x), 2) + pow((point1.getY() - point2.y), 2));
   }
 
   /**
    * Gets the distance between two points.
    */
   double getDistanceBetweenPoints(Point point1, Point point2) {
-    return sqrt((point1.x - point2.x) ^ 2 + (point1.y - point2.y) ^ 2);
+    return sqrt(pow((point1.x - point2.x), 2) + pow((point1.y - point2.y), 2));
   }
 
   /**
