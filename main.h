@@ -5,8 +5,4 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "EdgeBundler.h"
-#include "EdgeBundleTree.h"
-#include "Util.h"
-
-#endif //MINGLEC_MAIN_H
+#endif // MINGLEC_MAIN_H

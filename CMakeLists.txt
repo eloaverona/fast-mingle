@@ -2,18 +2,14 @@ cmake_minimum_required(VERSION 3.5)
 project(mingle)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-find_package(GLUT REQUIRED)
-find_package(OpenGL REQUIRED)
-
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME OFF) 
+find_package(Boost 1.61.0 COMPONENTS math) 
 add_subdirectory(ann_1.1.2)
 
-set(MINGLER_SOURCE_FILES main.cpp main.h EdgeBundler.cpp EdgeBundler.h EdgeBundleTree.cpp EdgeBundleTree.h Util.cpp Util.h EdgeGraph.cpp EdgeGraph.h)
-set(RENDERER_SOURCE_FILES renderer_main.h renderer_main.cpp)
+set(MINGLER_SOURCE_FILES main.cpp main.h Edge.cpp Edge.h GetTotalInkWhenMovedByFraction.cpp GetTotalInkWhenMovedByFraction.h Point.cpp Point.h Edge.cpp Edge.h Graph.h Graph.cpp)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-register")
+include_directories(${Boost_INCLUDE_DIRS}) 
 add_executable(mingle ${MINGLER_SOURCE_FILES})
-add_executable(render_graph ${RENDERER_SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ann ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
-target_link_libraries(render_graph ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ann ${Boost_LIBRARIES})
