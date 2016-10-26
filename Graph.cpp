@@ -233,7 +233,7 @@ Point Graph::brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
       optimizationFunction, -BRENT_SEARCH_RANGE, BRENT_SEARCH_RANGE,
       BRENT_SEARCH_PRECISION, BRENT_SEARCH_MAX_ITERATIONS);
   Point diff = moveVector * result.first;
-  return sourcePoint - diff;
+  return sourcePoint + diff;
 }
 
 Point Graph::getSourceCentroid(Edge &edge1, Edge &edge2) {

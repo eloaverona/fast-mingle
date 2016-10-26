@@ -14,7 +14,7 @@ GetTotalInkWhenMovedByFraction::GetTotalInkWhenMovedByFraction(
 double GetTotalInkWhenMovedByFraction::operator()(double moveFactor) {
   double totalInk = 0.0;
   Point move = _moveVector * moveFactor;
-  Point newPoint = _pointThatMoves;
+  Point newPoint = _pointThatMoves + move;
   for (Point childPoint : _childPoints) {
     totalInk += Point::getDistanceBetweenPoints(childPoint, newPoint);
   }

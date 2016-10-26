@@ -49,8 +49,7 @@ private:
 
   /**
    * Find the neighbors of the target edge and fill in the neighbors array with
-   * the edge's
-   * neighbors.
+   * the edge's neighbors.
    *
    * @param target The edge to look neighbors for.
    * @param neighbors The neighbors array to be filled with the target
