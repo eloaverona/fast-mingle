@@ -97,23 +97,14 @@ void Graph::doMingle() {
     numBundled = 0;
     for (Edge *edgePointer : _edges) {
       Edge edge = *edgePointer;
-      if (!edge.hasParent()) {
+      if (!edgePointer->hasParent()) {
         fillNeighborArrayWithEdgeNeighbors(edge, neighbors);
-        double maxInkSaved = 0.0;
-        Edge *bestNeighborPointer = nullptr;
-        for (Edge *neighborPointer : neighbors) {
-          Edge neighbor = *neighborPointer;
-          double inkSaved = estimateInkSavings(edge, neighbor);
-          if (inkSaved > maxInkSaved) {
-            maxInkSaved = inkSaved;
-            bestNeighborPointer = neighborPointer;
-          }
-        }
+        Edge *bestNeighborPointer = findBestNeighborForEdge(edge, neighbors);
         if (bestNeighborPointer != nullptr) {
           Edge bestNeighbor = *bestNeighborPointer;
           Edge *bundledEdge = new Edge(getBundledEdge(edge, bestNeighbor));
-          edge.setParent(bundledEdge);
-          bestNeighbor.setParent(bundledEdge);
+          edgePointer->setParent(bundledEdge);
+          bestNeighborPointer->setParent(bundledEdge);
           numBundled++;
         }
       }
@@ -121,10 +112,27 @@ void Graph::doMingle() {
   } while (numBundled > 0);
 }
 
+
+Edge* Graph::findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors) {
+	Edge *bestNeighborPointer = nullptr;
+	double maxInkSaved = 0.0;
+    for (Edge *neighborPointer : neighbors) {
+      Edge neighbor = *neighborPointer;
+      double inkSaved = estimateInkSavings(edge, neighbor);
+      if (inkSaved > maxInkSaved) {
+        maxInkSaved = inkSaved;
+        bestNeighborPointer = neighborPointer;
+      }
+    }
+    return bestNeighborPointer;
+}
+
 double Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
-  if (edge1.getParent() != nullptr && edge1.getParent() == edge2.getParent()) {
+  // If both are bundled together, then there are no ink savings.
+  if ( (edge1.hasParent() && edge2.hasParent()) && (edge1.getParent() == edge2.getParent())) {
     return 0.0;
   }
+  // Calculate the total ink of each edge that belongs to.
   double currentInk = 0.0;
   if (edge1.hasParent()) {
     currentInk += edge1.getParent()->getInk();
@@ -137,20 +145,20 @@ double Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
     currentInk += edge2.getInk();
   }
   Edge bundledEdge = getBundledEdge(edge1, edge2);
-  return (currentInk)-bundledEdge.getInk();
+  return currentInk -bundledEdge.getInk();
 }
 
 Edge Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
-  Point sourceCentroid = getSourceCentroid(edge1, edge2);
-  Point targetCentroid = getTargetCentroid(edge1, edge2);
   std::vector<Point> sourcePoints;
   sourcePoints.push_back(edge1.getSource());
   sourcePoints.push_back(edge2.getSource());
-  Point sourceMeetingPoint =
-      brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
   std::vector<Point> targetPoints;
   targetPoints.push_back(edge1.getTarget());
   targetPoints.push_back(edge2.getTarget());
+  Point sourceCentroid = getCentroid(sourcePoints);
+  Point targetCentroid = getCentroid(targetPoints);
+  Point sourceMeetingPoint =
+      brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
   Point targetMeetingPoint =
       brentSearchMeetingPoint(targetCentroid, sourceCentroid, targetPoints);
   Edge parentEdge = Edge(sourceMeetingPoint, targetMeetingPoint);
@@ -211,10 +219,10 @@ Edge Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   return newParentEdge;
 }
 
-Point Graph::getCentroid(std::vector<Point> points) {
-  double xSum = 0.0;
-  double ySum = 0.0;
-  int numPoints;
+Point Graph::getCentroid(std::vector<Point> &points) {
+  float xSum = 0.0f;
+  float ySum = 0.0f;
+  int numPoints = 0;
   for (Point point : points) {
     xSum += point.x;
     ySum += point.y;
@@ -234,14 +242,4 @@ Point Graph::brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
       BRENT_SEARCH_PRECISION, BRENT_SEARCH_MAX_ITERATIONS);
   Point diff = moveVector * result.first;
   return sourcePoint + diff;
-}
-
-Point Graph::getSourceCentroid(Edge &edge1, Edge &edge2) {
-  return {(edge1.getSource().x + edge2.getSource().x) / 2,
-          (edge1.getSource().y + edge2.getSource().y) / 2};
-}
-
-Point Graph::getTargetCentroid(Edge &edge1, Edge &edge2) {
-  return {(edge1.getTarget().x + edge2.getTarget().x) / 2,
-          (edge1.getTarget().y + edge2.getTarget().y) / 2};
 }

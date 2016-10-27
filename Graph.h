@@ -86,7 +86,7 @@ private:
   /**
    * Get the centroid point for a set of edges.
    */
-  Point getCentroid(std::vector<Point> points);
+  Point getCentroid(std::vector<Point> &points);
 
   /**
    * Grab the children of two bundles and put them into one bundle.
@@ -110,6 +110,8 @@ private:
    */
   Point brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
                                 std::vector<Point> &sourcePoints);
+  Edge* findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors);
+
   double BRENT_SEARCH_RANGE = 0.25;
   int BRENT_SEARCH_PRECISION = std::numeric_limits<double>::digits;
   boost::uintmax_t BRENT_SEARCH_MAX_ITERATIONS = 20;
