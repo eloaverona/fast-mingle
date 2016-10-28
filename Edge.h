@@ -50,12 +50,12 @@ public:
    * target points
    * is connected to this edge's target point.
    */
-  std::vector<Edge> &getChildren() { return _children; }
+  std::vector<Edge*> getChildren() { return _children; }
 
   /**
    * Adds a child edge to this edge.
    */
-  void addChild(Edge &child);
+  void addChild(Edge *child);
 
   /**
    * Gets the parent edge of this edge.
@@ -76,7 +76,7 @@ private:
   double _ink;
   Point _source;
   Point _target;
-  std::vector<Edge> _children;
+  std::vector<Edge *> _children;
   Edge *_parent;
 };
 

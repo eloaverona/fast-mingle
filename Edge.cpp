@@ -13,9 +13,9 @@ Edge::Edge(Point source, Point target) {
   _parent = nullptr;
 }
 
-void Edge::addChild(Edge &child) {
+void Edge::addChild(Edge *child) {
   _children.push_back(child);
-  _ink += Point::getDistanceBetweenPoints(child.getSource(), getSource());
-  _ink += Point::getDistanceBetweenPoints(child.getTarget(), getTarget());
+  _ink += Point::getDistanceBetweenPoints(child->getSource(), getSource());
+  _ink += Point::getDistanceBetweenPoints(child->getTarget(), getTarget());
   _weight += 1;
 }

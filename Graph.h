@@ -37,6 +37,8 @@ private:
    */
   std::vector<Edge *> _edges;
 
+  std::vector<Edge *> _parentEdges;
+
   /**
    * Read the next edge in the file and add it to the _edges array.
    */
@@ -97,6 +99,10 @@ private:
    * Get the bundle if edge1 were to be added to bundle.
    */
   Edge addEdgeToBundle(Edge &edge1, Edge &bundle);
+
+  void putTwoEdgesOnSameBundle(Edge* edge1Pointer, Edge* edge2Pointer);
+
+  void deleteParentEdge(Edge* parent);
 
   /**
    * Use the brent search minimization algorithm to search for the optimal
