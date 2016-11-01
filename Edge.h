@@ -69,7 +69,10 @@ public:
 
   bool hasParent() { return _parent != nullptr; }
 
-  bool hasChildren() { return _children.size() > 0; }
+  bool hasChildren() {
+	  // Whatdup
+	  return _children.size() > 0;
+  }
 
 private:
   int _weight;

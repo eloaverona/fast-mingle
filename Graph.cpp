@@ -26,6 +26,48 @@ void Graph::readEdgesFromFile(const char *edgesFilePath) {
   numNeighbors = _edges.size() - 1;
 }
 
+void Graph::writePointsAndEdges(const char *pointsFilePath, const char *edgesFilePath) {
+	int nextPointId = 0;
+	std::unordered_map<Point,int, PointHasher> pointToPointIdMap;
+	FILE *pointsFilePointer = fopen(pointsFilePath, "w");
+	FILE *edgesfilePointer = fopen(edgesFilePath, "w");
+	for(Edge* edge : _parentEdges) {
+		writePoints(pointsFilePointer, *edge, nextPointId, pointToPointIdMap);
+		writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, *edge, pointToPointIdMap);
+	}
+}
+
+void Graph::writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap) {
+	Point sourcePoint = edge.getSource();
+	Point targetPoint = edge.getTarget();
+	addPointIfNotInMap(pointsFilePointer, sourcePoint, nextPointId, pointToPointIdMap);
+	addPointIfNotInMap(pointsFilePointer, targetPoint, nextPointId, pointToPointIdMap);
+}
+
+void Graph::addPointIfNotInMap(FILE *pointsFilePointer, Point point, int &nextPointId,  std::unordered_map<Point,int, PointHasher> &pointToPointIdMap) {
+	std::unordered_map<Point,int, PointHasher>::const_iterator result = pointToPointIdMap.find(point);
+	if (result == pointToPointIdMap.end()){
+		pointToPointIdMap[point] = nextPointId;
+		nextPointId++;
+		fprintf(pointsFilePointer, "%d %.4f %.4f\n", nextPointId, point.x, point.y);
+	}
+}
+
+void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId, Edge& edge, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap) {
+	Point sourcePoint = edge.getSource();
+	Point targetPoint = edge.getTarget();
+	for(Edge* childPointer : edge.getChildren()) {
+		Edge &child = *childPointer;
+		writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
+		fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[sourcePoint], pointToPointIdMap[child.getSource()], 1);
+		fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[targetPoint], pointToPointIdMap[child.getTarget()], 1);
+		if(child.hasChildren()) {
+			writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
+			writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, child, pointToPointIdMap);
+		}
+	}
+}
+
 void Graph::readNextEdgeInFile(FILE *filePointer) {
   float pointAx;
   float pointAy;
@@ -47,7 +89,7 @@ void Graph::rebuildIndex() {
   annPoints = annAllocPts(_edges.size(), 4);
   assert(annPoints != nullptr);
   for (int i = 0; i < _edges.size(); ++i) {
-    Edge edge = *_edges[i];
+    Edge &edge = *_edges[i];
     ANNpoint p = annPoints[i];
     p[0] = edge.getSource().x;
     p[1] = edge.getSource().y;
@@ -96,12 +138,12 @@ void Graph::doMingle() {
   do {
     numBundled = 0;
     for (Edge *edgePointer : _edges) {
-      Edge edge = *edgePointer;
+      Edge &edge = *edgePointer;
       if (!edgePointer->hasParent()) {
         fillNeighborArrayWithEdgeNeighbors(edge, neighbors);
         Edge *bestNeighborPointer = findBestNeighborForEdge(edge, neighbors);
         if (bestNeighborPointer != nullptr) {
-          putTwoEdgesOnSameBundle(edgePointer, bestNeighborPointer);
+          putTwoEdgesOnSameBundle(*edgePointer, *bestNeighborPointer);
           numBundled++;
         }
       }
@@ -109,9 +151,7 @@ void Graph::doMingle() {
   } while (numBundled > 0);
 }
 
-void Graph::putTwoEdgesOnSameBundle(Edge* edge1Pointer, Edge* edge2Pointer) {
-  Edge edge1 = *edge1Pointer;
-  Edge edge2 = *edge2Pointer;
+void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2) {
   Edge *parent = nullptr;
   if (!edge1.hasParent() && !edge2.hasParent()) {
 	parent = new Edge(getBundledEdgeOfTwoUnbundledEdges(edge1, edge2));
@@ -130,8 +170,8 @@ void Graph::putTwoEdgesOnSameBundle(Edge* edge1Pointer, Edge* edge2Pointer) {
 	deleteParentEdge(edge2.getParent());
   }
   assert(parent != nullptr);
-  edge1Pointer->setParent(parent);
-  edge2Pointer->setParent(parent);
+  edge1.setParent(parent);
+  edge2.setParent(parent);
   _parentEdges.push_back(parent);
 }
 

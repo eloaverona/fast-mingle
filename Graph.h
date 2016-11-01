@@ -13,6 +13,7 @@
 #include <boost/cstdint.hpp>
 #include <limits>
 #include <vector>
+#include <unordered_map>
 
 class Graph {
 public:
@@ -26,6 +27,8 @@ public:
    * Does the main mingling step.
    */
   void doMingle();
+
+  void writePointsAndEdges(const char *pointsFilePath, const char *edgesFilePath);
 
 private:
   // Members needed for the ANN search
@@ -100,9 +103,13 @@ private:
    */
   Edge addEdgeToBundle(Edge &edge1, Edge &bundle);
 
-  void putTwoEdgesOnSameBundle(Edge* edge1Pointer, Edge* edge2Pointer);
+  void putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2);
 
   void deleteParentEdge(Edge* parent);
+
+  void writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId, Edge& edge, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
+  void writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
+  void addPointIfNotInMap(FILE *pointsFilePointer, Point point, int &nextPointId,  std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
 
   /**
    * Use the brent search minimization algorithm to search for the optimal
