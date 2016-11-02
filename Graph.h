@@ -177,6 +177,7 @@ private:
    * @param edge The edge to find whose neighbor gives the most ink savings.
    * @param neighbors The neighbors to look at to see which one has the most
    *     most ink savings.
+   * @return The pointer to the neighbor that gives the most ink savings.
    */
   Edge *findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors);
 
