@@ -34,14 +34,14 @@ public:
   /**
    * Get the ink used by this edge and its children.
    */
-  double getInk() const { return _ink; }
+  double getInk() { return _ink; }
 
   /**
    * Get the weight of this edge. The weight of this edge is equal to the number
    * of children it
    * has + 1.
    */
-  int getWeight() const { return _weight; }
+  int getWeight() { return _weight; }
 
   /**
    * Get the edge's children. In the final mingled layout, each one of its

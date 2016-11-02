@@ -228,11 +228,13 @@ double Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
   // Calculate the total ink of each edge that belongs to.
   double currentInk = 0.0;
   if (edge1.hasParent()) {
+	assert(edge1.getParent() != nullptr);
     currentInk += edge1.getParent()->getInk();
   } else {
     currentInk += edge1.getInk();
   }
   if (edge2.hasParent()) {
+	assert(edge2.getParent() != nullptr);
     currentInk += edge2.getParent()->getInk();
   } else {
     currentInk += edge2.getInk();
