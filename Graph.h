@@ -71,12 +71,12 @@ private:
   /**
    * Get the bundled edge if these two edges were to make up a bundle.
    */
-  Edge getBundledEdge(Edge &edge1, Edge &edge2);
+  Edge* getBundledEdge(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundled edge of two edges that currently are not part of a bundle.
    */
-  Edge getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2);
+  Edge* getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2);
 
   /**
    * Get the source centroid point for two edges.
@@ -96,16 +96,16 @@ private:
   /**
    * Grab the children of two bundles and put them into one bundle.
    */
-  Edge mergeTwoBundles(Edge &edge1, Edge &edge2);
+  Edge* mergeTwoBundles(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundle if edge1 were to be added to bundle.
    */
-  Edge addEdgeToBundle(Edge &edge1, Edge &bundle);
+  Edge* addEdgeToBundle(Edge &edge1, Edge &bundle);
 
   void putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2);
 
-  void deleteParentEdge(Edge* parent);
+  void deleteParentEdge(Edge &edge);
 
   void writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId, Edge& edge, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
   void writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);

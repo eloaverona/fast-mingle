@@ -62,6 +62,8 @@ public:
    */
   Edge *getParent() { return _parent; }
 
+  void deleteParent();
+
   /**
    * Sets the parent edge of this edge.
    */
@@ -69,10 +71,7 @@ public:
 
   bool hasParent() { return _parent != nullptr; }
 
-  bool hasChildren() {
-	  // Whatdup
-	  return _children.size() > 0;
-  }
+  bool hasChildren() { return _children.size() > 0; }
 
 private:
   int _weight;

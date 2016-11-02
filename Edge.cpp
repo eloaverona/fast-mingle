@@ -19,3 +19,8 @@ void Edge::addChild(Edge *child) {
   _ink += Point::getDistanceBetweenPoints(child->getTarget(), getTarget());
   _weight += 1;
 }
+
+void Edge::deleteParent() {
+	delete _parent;
+	_parent = nullptr;
+}
