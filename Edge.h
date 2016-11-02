@@ -49,7 +49,7 @@ public:
    * Each one of its children's target points is connected to this edge's
    * target point.
    */
-  std::vector<Edge*> getChildren() { return _children; }
+  std::vector<Edge *> getChildren() { return _children; }
 
   /**
    * Adds a child edge to this edge.

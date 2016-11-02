@@ -12,8 +12,8 @@
 #include "Edge.h"
 #include <boost/cstdint.hpp>
 #include <limits>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 class Graph {
 public:
@@ -35,7 +35,8 @@ public:
    * @param edgesFilePath A string that indicates the file path
    *     of the file that will contain the edges between points.
    */
-  void writePointsAndEdges(const char *pointsFilePath, const char *edgesFilePath);
+  void writePointsAndEdges(const char *pointsFilePath,
+                           const char *edgesFilePath);
 
 private:
   // Members needed for the ANN search
@@ -78,12 +79,12 @@ private:
   /**
    * Get the bundled edge if these two edges were to make up a bundle.
    */
-  Edge* getBundledEdge(Edge &edge1, Edge &edge2);
+  Edge *getBundledEdge(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundled edge of two edges that currently are not part of a bundle.
    */
-  Edge* getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2);
+  Edge *getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2);
 
   /**
    * Get the source centroid point for two edges.
@@ -102,12 +103,12 @@ private:
   /**
    * Grab the children of two bundles and put them into one bundle.
    */
-  Edge* mergeTwoBundles(Edge &edge1, Edge &edge2);
+  Edge *mergeTwoBundles(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundle if edge1 were to be added to bundle.
    */
-  Edge* addEdgeToBundle(Edge &edge1, Edge &bundle);
+  Edge *addEdgeToBundle(Edge &edge1, Edge &bundle);
 
   /**
    * Grabs two edges and makes the necessary changes to put them on
@@ -139,7 +140,10 @@ private:
    * @param edge The edge to write it's point and children's edges.
    * @param pointToIdMap A map of points and their repsective id's.
    */
-  void writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId, Edge& edge, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
+  void
+  writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId,
+             Edge &edge,
+             std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
 
   /**
    * Writes the points of a given edge.
@@ -148,8 +152,12 @@ private:
    * @param edge The edge whose points should be written to the fle.
    * @param pointToIdMap A map of point to points Ids.
    */
-  void writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
-  void addPointIfNotInMap(FILE *pointsFilePointer, Point point, int &nextPointId,  std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
+  void
+  writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId,
+              std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
+  void addPointIfNotInMap(
+      FILE *pointsFilePointer, Point point, int &nextPointId,
+      std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
 
   /**
    * Use the brent search minimization algorithm to search for the optimal
@@ -170,7 +178,7 @@ private:
    * @param neighbors The neighbors to look at to see which one has the most
    *     most ink savings.
    */
-  Edge* findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors);
+  Edge *findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors);
 
   double BRENT_SEARCH_RANGE = 0.25;
   int BRENT_SEARCH_PRECISION = std::numeric_limits<double>::digits;

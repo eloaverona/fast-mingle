@@ -22,7 +22,7 @@ struct Point {
 };
 
 struct PointHasher {
-    std::size_t operator()(const Point& p) const;
+  std::size_t operator()(const Point &p) const;
 };
 
 #endif /* POINT_H_ */
