@@ -54,14 +54,16 @@ void Graph::addPointIfNotInMap(FILE *pointsFilePointer, Point point, int &nextPo
 	std::unordered_map<Point,int, PointHasher>::const_iterator result = pointToPointIdMap.find(point);
 	if (result == pointToPointIdMap.end()){
 		pointToPointIdMap[point] = nextPointId;
-		nextPointId++;
 		fprintf(pointsFilePointer, "%d %.4f %.4f\n", nextPointId, point.x, point.y);
+		nextPointId++;
 	}
 }
 
 void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId, Edge& edge, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap) {
+	writePoints(pointsFilePointer, edge, nextPointId, pointToPointIdMap);
 	Point sourcePoint = edge.getSource();
 	Point targetPoint = edge.getTarget();
+	fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[sourcePoint], pointToPointIdMap[targetPoint], 1);
 	for(Edge* childPointer : edge.getChildren()) {
 		Edge &child = *childPointer;
 		writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
