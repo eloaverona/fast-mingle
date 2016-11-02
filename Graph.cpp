@@ -38,7 +38,6 @@ void Graph::writePointsAndEdges(const char *pointsFilePath, const char *edgesFil
 	FILE *pointsFilePointer = fopen(pointsFilePath, "w");
 	FILE *edgesfilePointer = fopen(edgesFilePath, "w");
 	for(Edge* edge : _parentEdges) {
-		writePoints(pointsFilePointer, *edge, nextPointId, pointToPointIdMap);
 		writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, *edge, pointToPointIdMap);
 	}
 }
@@ -63,7 +62,9 @@ void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nex
 	writePoints(pointsFilePointer, edge, nextPointId, pointToPointIdMap);
 	Point sourcePoint = edge.getSource();
 	Point targetPoint = edge.getTarget();
-	fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[sourcePoint], pointToPointIdMap[targetPoint], 1);
+	if (!edge.hasParent()) {
+		fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[sourcePoint], pointToPointIdMap[targetPoint], 1);
+	}
 	for(Edge* childPointer : edge.getChildren()) {
 		Edge &child = *childPointer;
 		writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
@@ -162,39 +163,21 @@ void Graph::doMingle() {
 void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2) {
   Edge *parent = nullptr;
   if (!edge1.hasParent() && !edge2.hasParent()) {
-	assert(!edge1.hasParent());
-	assert(!edge2.hasParent());
 	parent = getBundledEdgeOfTwoUnbundledEdges(edge1, edge2);
   } else if (edge1.getParent() == edge2.getParent()) {
-	assert(edge1.hasParent());
-	assert(edge2.hasParent());
 	// They are both in the same bundle so do nothing
 	return;
   } else if (edge1.hasParent() && edge2.hasParent()) {
-	assert(edge1.hasParent());
-	assert(edge2.hasParent());
     deleteParentEdge(edge1);
     deleteParentEdge(edge2);
 	parent = mergeTwoBundles(*edge1.getParent(), *edge2.getParent());
-	assert(!edge1.hasParent());
-	assert(!edge2.hasParent());
   } else if (edge1.hasParent()) {
-	assert(edge1.hasParent());
-	assert(!edge2.hasParent());
 	parent = addEdgeToBundle(edge2, *edge1.getParent());
 	deleteParentEdge(edge1);
-	assert(!edge1.hasParent());
   } else {
-	assert(!edge1.hasParent());
-	assert(edge2.hasParent());
 	parent = addEdgeToBundle(edge1, *edge2.getParent());
 	deleteParentEdge(edge2);
-	assert(!edge2.hasParent());
   }
-  assert(parent != nullptr);
-  assert(edge1.getParent() == nullptr);
-  assert(edge2.getParent() == nullptr);
-  assert(parent->getWeight() > 0);
   edge1.setParent(parent);
   edge2.setParent(parent);
   _parentEdges.push_back(parent);
@@ -203,7 +186,7 @@ void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2) {
 void Graph::deleteParentEdge(Edge &edge) {
 	Edge* parent = edge.getParent();
 	_parentEdges.erase(std::remove(_parentEdges.begin(), _parentEdges.end(), parent), _parentEdges.end());
-	edge.deleteParent();
+	edge.clearParent();
 }
 
 

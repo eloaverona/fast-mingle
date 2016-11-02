@@ -20,7 +20,7 @@ void Edge::addChild(Edge *child) {
   _weight += 1;
 }
 
-void Edge::deleteParent() {
+void Edge::clearParent() {
 //	delete _parent;
 	_parent = nullptr;
 }

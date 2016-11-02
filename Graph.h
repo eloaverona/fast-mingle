@@ -28,6 +28,13 @@ public:
    */
   void doMingle();
 
+  /**
+   * Writes the point and edges to the given file paths.
+   * @param pointsFilePath A string that indicates the file path
+   *     of the file that will contain the points.
+   * @param edgesFilePath A string that indicates the file path
+   *     of the file that will contain the edges between points.
+   */
   void writePointsAndEdges(const char *pointsFilePath, const char *edgesFilePath);
 
 private:
@@ -81,7 +88,6 @@ private:
   /**
    * Get the source centroid point for two edges.
    */
-
   Point getSourceCentroid(Edge &edge1, Edge &edge2);
   /**
    * Get the target centroid point for two edges.
@@ -103,11 +109,45 @@ private:
    */
   Edge* addEdgeToBundle(Edge &edge1, Edge &bundle);
 
+  /**
+   * Grabs two edges and makes the necessary changes to put them on
+   * one single bundle.  This is used after the findBestNeighborForEdge
+   * method has returned the best neighhbor for a given edge. Because we
+   * know that these two edges will give us ink savings, we put them together.
+   *
+   * @param edge1 The first edge to be put on the same bundle as edge2.
+   * @param edge2 The second edge to be put on the same bundle as edge1.
+   */
   void putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2);
 
+  /**
+   * Deletes the parent edge of the provided edge from the _parentEdges array.
+   * It also clears the parent pointer on the edge.
+   *
+   * @param edge The edge whose parent should be deleted.
+   */
   void deleteParentEdge(Edge &edge);
 
+  /**
+   * Writes the edges of a given edge. Looks at the edge's children and
+   * writes the edge between this edge's points and the edge's children.
+   * @param pointsFilePointer The FILE pointer of the file where the points
+   *     will be written to.
+   * @param edgesFilePointer The FILE pointer of the file where the edges
+   *     will be written to.
+   * @param nextPointId The next id to give to the next written point.
+   * @param edge The edge to write it's point and children's edges.
+   * @param pointToIdMap A map of points and their repsective id's.
+   */
   void writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId, Edge& edge, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
+
+  /**
+   * Writes the points of a given edge.
+   * @param pointsFilePointer the FILe pointer of the file where the points
+   *     will be written to.
+   * @param edge The edge whose points should be written to the fle.
+   * @param pointToIdMap A map of point to points Ids.
+   */
   void writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId, std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
   void addPointIfNotInMap(FILE *pointsFilePointer, Point point, int &nextPointId,  std::unordered_map<Point,int, PointHasher> &pointToPointIdMap);
 
@@ -123,6 +163,13 @@ private:
    */
   Point brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
                                 std::vector<Point> &sourcePoints);
+
+  /**
+   * Finds the neighbor that gives the most ink savings for an edge.
+   * @param edge The edge to find whose neighbor gives the most ink savings.
+   * @param neighbors The neighbors to look at to see which one has the most
+   *     most ink savings.
+   */
   Edge* findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors);
 
   double BRENT_SEARCH_RANGE = 0.25;

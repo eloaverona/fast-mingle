@@ -45,10 +45,9 @@ public:
 
   /**
    * Get the edge's children. In the final mingled layout, each one of its
-   * children's source
-   * points is connected to this edge's source point. Each one of its children's
-   * target points
-   * is connected to this edge's target point.
+   * children's source points is connected to this edge's source point.
+   * Each one of its children's target points is connected to this edge's
+   * target point.
    */
   std::vector<Edge*> getChildren() { return _children; }
 
@@ -62,15 +61,25 @@ public:
    */
   Edge *getParent() { return _parent; }
 
-  void deleteParent();
+  /**
+   * Clears the parent pointer in this edge. As a consequence of clearing
+   * the parent, the hasParent() method will return false.
+   */
+  void clearParent();
 
   /**
    * Sets the parent edge of this edge.
    */
   void setParent(Edge *edge) { _parent = edge; }
 
+  /**
+   * Whether this edge has been assigned a parent pointer or not.
+   */
   bool hasParent() { return _parent != nullptr; }
 
+  /**
+   * Whether this edge has children or not.
+   */
   bool hasChildren() { return _children.size() > 0; }
 
 private:
