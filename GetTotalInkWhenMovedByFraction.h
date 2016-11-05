@@ -41,6 +41,14 @@ public:
    */
   double operator()(double moveFactor);
 
+  /**
+   * Straight edge parameter. In order to promote straight edges, the result
+   * of the ink saving is multiplied by this parameter. Refer to the paper
+   * for more information. 2.53209 is the value of 1 + cos(50) / 0.5, meaning
+   * that the maximum turning angle is 50 degrees and the value of p is 0.5.
+   */
+  static constexpr double STRAIGHT_EDGE_PARAM = 1.69640;
+
 private:
   Point _pointThatMoves;
   Point _moveVector;

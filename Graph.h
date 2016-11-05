@@ -25,8 +25,16 @@ public:
 
   /**
    * Does the main mingling step.
+   *
+   * @return The number of iterations done during this mingling step.
+   *     The minimum number of iterations is 1.
    */
-  void doMingle();
+  int doMingle();
+
+  /**
+   * Does mingling recursively.
+   */
+  void doRecursiveMingle();
 
   /**
    * Writes the point and edges to the given file paths.
@@ -59,6 +67,8 @@ private:
    * Rebuild the ANN index for correct querying of neighbors with ANN.
    */
   void rebuildIndex();
+
+  void adjustNumNeighbors();
 
   /**
    * Find the neighbors of the target edge and fill in the neighbors array with
@@ -181,7 +191,7 @@ private:
    */
   Edge *findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors);
 
-  double BRENT_SEARCH_RANGE = 0.25;
+  double BRENT_SEARCH_RANGE = 0.75;
   int BRENT_SEARCH_PRECISION = std::numeric_limits<double>::digits;
   boost::uintmax_t BRENT_SEARCH_MAX_ITERATIONS = 20;
 

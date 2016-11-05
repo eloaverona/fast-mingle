@@ -23,6 +23,10 @@ void Graph::readEdgesFromFile(const char *edgesFilePath) {
     readNextEdgeInFile(filePointer);
   }
   fclose(filePointer);
+  adjustNumNeighbors();
+}
+
+void Graph::adjustNumNeighbors() {
   if (_edges.size() < 10) {
     numNeighbors = _edges.size() - 1;
   } else if (_edges.size() < 100) {
@@ -38,7 +42,7 @@ void Graph::writePointsAndEdges(const char *pointsFilePath,
   std::unordered_map<Point, int, PointHasher> pointToPointIdMap;
   FILE *pointsFilePointer = fopen(pointsFilePath, "w");
   FILE *edgesfilePointer = fopen(edgesFilePath, "w");
-  for (Edge *edge : _parentEdges) {
+  for (Edge *edge : _edges) {
     writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, *edge,
                pointToPointIdMap);
   }
@@ -156,9 +160,10 @@ Edge *Graph::getBundledEdge(Edge &edge1, Edge &edge2) {
   }
 }
 
-void Graph::doMingle() {
+int Graph::doMingle() {
   std::vector<Edge *> neighbors;
   int numBundled = 0;
+  int numIterations = 0;
   rebuildIndex();
   do {
     numBundled = 0;
@@ -173,7 +178,24 @@ void Graph::doMingle() {
         }
       }
     }
+    numIterations++;
   } while (numBundled > 0);
+  return numIterations;
+}
+
+void Graph::doRecursiveMingle() {
+  int numIterations = doMingle();
+  while (numIterations > 1) {
+    for (Edge *edge : _edges) {
+      if (!edge->hasParent()) {
+        _parentEdges.push_back(edge);
+      }
+    }
+    _edges = _parentEdges;
+    _parentEdges.clear();
+    adjustNumNeighbors();
+    numIterations = doMingle();
+  }
 }
 
 void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2) {
@@ -257,7 +279,7 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   Point sourceMeetingPoint =
       brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
   Point targetMeetingPoint =
-      brentSearchMeetingPoint(targetCentroid, sourceCentroid, targetPoints);
+      brentSearchMeetingPoint(targetCentroid, sourceMeetingPoint, targetPoints);
   Edge *parentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
   parentEdge->addChild(&edge1);
   parentEdge->addChild(&edge2);
@@ -265,7 +287,8 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
 }
 
 Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
-  assert(edge1.hasChildren() && edge2.hasChildren());
+  assert(edge1.hasChildren() && edge2.hasChildren() && !edge1.hasParent() &&
+         edge2.hasParent());
   std::vector<Point> sourcePoints;
   std::vector<Point> targetPoints;
   for (Edge *childEdge : edge1.getChildren()) {
@@ -281,7 +304,7 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
   Point sourceMeetingPoint =
       brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
   Point targetMeetingPoint =
-      brentSearchMeetingPoint(targetCentroid, sourceCentroid, targetPoints);
+      brentSearchMeetingPoint(targetCentroid, sourceMeetingPoint, targetPoints);
   Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
   for (Edge *childEdge : edge1.getChildren()) {
     newParentEdge->addChild(childEdge);
@@ -293,6 +316,7 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
 }
 
 Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
+  assert(!bundle.hasParent() && bundle.hasChildren());
   std::vector<Point> sourcePoints;
   std::vector<Point> targetPoints;
   for (Edge *childEdge : bundle.getChildren()) {
@@ -306,7 +330,7 @@ Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   Point sourceMeetingPoint =
       brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
   Point targetMeetingPoint =
-      brentSearchMeetingPoint(targetCentroid, sourceCentroid, targetPoints);
+      brentSearchMeetingPoint(targetCentroid, sourceMeetingPoint, targetPoints);
   Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
   for (Edge *childEdge : bundle.getChildren()) {
     newParentEdge->addChild(childEdge);

@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   }
   Graph *graph = new Graph();
   graph->readEdgesFromFile(argv[1]);
-  graph->doMingle();
+  graph->doRecursiveMingle();
   graph->writePointsAndEdges(argv[2], argv[3]);
   return 0;
 }
