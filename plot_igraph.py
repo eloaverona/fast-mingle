@@ -19,6 +19,6 @@ def plotFromNodeAndEdgesFile(nodesFilePath, edgesFilePath):
 
 if __name__ == "__main__":
     if (len(sys.argv) < 3):
-        printf("Usage python plot_igraph.py path_nodes.txt path_edges.txt")
+        print("Usage python plot_igraph.py path_nodes.txt path_edges.txt")
     else:
         plotFromNodeAndEdgesFile(sys.argv[1], sys.argv[2])

@@ -180,7 +180,7 @@ private:
    * sourcePoint is connected to.
    */
   Point brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
-                                std::vector<Point> &sourcePoints);
+          std::vector<Point> sourcePoints, std::vector<int> pointWeights);
 
   /**
    * Gets the current ink occupied by the edge or the edge's bundles combined.

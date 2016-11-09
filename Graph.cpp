@@ -284,12 +284,15 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   std::vector<Point> targetPoints;
   targetPoints.push_back(edge1.getTarget());
   targetPoints.push_back(edge2.getTarget());
+  std::vector<int> pointWeights;
+  pointWeights.push_back(edge1.getWeight());
+  pointWeights.push_back(edge2.getWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
-  Point sourceMeetingPoint =
-      brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
-  Point targetMeetingPoint =
-      brentSearchMeetingPoint(targetCentroid, sourceMeetingPoint, targetPoints);
+  Point sourceMeetingPoint = brentSearchMeetingPoint(
+      sourceCentroid, targetCentroid, sourcePoints, pointWeights);
+  Point targetMeetingPoint = brentSearchMeetingPoint(
+      targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
   Edge *parentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
   parentEdge->addChild(&edge1);
   parentEdge->addChild(&edge2);
@@ -301,20 +304,23 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
          edge2.hasParent());
   std::vector<Point> sourcePoints;
   std::vector<Point> targetPoints;
+  std::vector<int> pointWeights;
   for (Edge *childEdge : edge1.getChildren()) {
     sourcePoints.push_back(childEdge->getSource());
     targetPoints.push_back(childEdge->getTarget());
+    pointWeights.push_back(childEdge->getWeight());
   }
   for (Edge *childEdge : edge2.getChildren()) {
     sourcePoints.push_back(childEdge->getSource());
     targetPoints.push_back(childEdge->getTarget());
+    pointWeights.push_back(childEdge->getWeight());
   }
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
-  Point sourceMeetingPoint =
-      brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
-  Point targetMeetingPoint =
-      brentSearchMeetingPoint(targetCentroid, sourceMeetingPoint, targetPoints);
+  Point sourceMeetingPoint = brentSearchMeetingPoint(
+      sourceCentroid, targetCentroid, sourcePoints, pointWeights);
+  Point targetMeetingPoint = brentSearchMeetingPoint(
+      targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
   Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
   for (Edge *childEdge : edge1.getChildren()) {
     newParentEdge->addChild(childEdge);
@@ -329,18 +335,21 @@ Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   assert(!bundle.hasParent() && bundle.hasChildren());
   std::vector<Point> sourcePoints;
   std::vector<Point> targetPoints;
+  std::vector<int> pointWeights;
   for (Edge *childEdge : bundle.getChildren()) {
     sourcePoints.push_back(childEdge->getSource());
     targetPoints.push_back(childEdge->getTarget());
+    pointWeights.push_back(childEdge->getWeight());
   }
   sourcePoints.push_back(edge1.getSource());
   targetPoints.push_back(edge1.getTarget());
+  pointWeights.push_back(edge1.getWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
-  Point sourceMeetingPoint =
-      brentSearchMeetingPoint(sourceCentroid, targetCentroid, sourcePoints);
-  Point targetMeetingPoint =
-      brentSearchMeetingPoint(targetCentroid, sourceMeetingPoint, targetPoints);
+  Point sourceMeetingPoint = brentSearchMeetingPoint(
+      sourceCentroid, targetCentroid, sourcePoints, pointWeights);
+  Point targetMeetingPoint = brentSearchMeetingPoint(
+      targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
   Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
   for (Edge *childEdge : bundle.getChildren()) {
     newParentEdge->addChild(childEdge);
@@ -362,11 +371,18 @@ Point Graph::getCentroid(std::vector<Point> &points) {
 }
 
 Point Graph::brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
-                                     std::vector<Point> &sourcePoints) {
+                                     std::vector<Point> sourcePoints,
+                                     std::vector<int> pointWeights) {
+  assert(sourcePoints.size() == pointWeights.size());
   Point moveVector = targetPoint - sourcePoint;
+  int weightTotal = 0;
+  for (int weight : pointWeights) {
+    weightTotal += weight;
+  }
   sourcePoints.push_back(targetPoint);
+  pointWeights.push_back(weightTotal);
   GetTotalInkWhenMovedByFraction optimizationFunction =
-      GetTotalInkWhenMovedByFraction(sourcePoint, moveVector, sourcePoints);
+      GetTotalInkWhenMovedByFraction(sourcePoint, moveVector, sourcePoints, pointWeights);
   std::pair<double, double> result = boost::math::tools::brent_find_minima(
       optimizationFunction, -BRENT_SEARCH_RANGE, BRENT_SEARCH_RANGE,
       BRENT_SEARCH_PRECISION, BRENT_SEARCH_MAX_ITERATIONS);
