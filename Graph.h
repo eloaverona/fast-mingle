@@ -26,14 +26,6 @@ public:
   void readEdgesFromFile(const char *edgesFilePath);
 
   /**
-   * Does the main mingling step.
-   *
-   * @return The number of iterations done during this mingling step.
-   *     The minimum number of iterations is 1.
-   */
-  int doMingle();
-
-  /**
    * Does mingling recursively.
    */
   void doRecursiveMingle();
@@ -58,6 +50,9 @@ private:
    */
   std::vector<Edge *> _edges;
 
+  /**
+   * A list of parent edges of the current edges that are being looked at.
+   */
   std::vector<Edge *> _parentEdges;
 
   /**
@@ -70,7 +65,21 @@ private:
    */
   void rebuildIndex();
 
+  /**
+   * Sets the numNeighbors variable to the correct value according to
+   * the number of edges. The numNeighbors variable is chosen to look
+   * at a number of neighbors that is not too low but also not too large
+   * for the number of edges.
+   */
   void adjustNumNeighbors();
+
+  /**
+   * Does the main mingling step.
+   *
+   * @return The number of iterations done during this mingling step.
+   *     The minimum number of iterations is 1.
+   */
+  int doMingle();
 
   /**
    * Find the neighbors of the target edge and fill in the neighbors array with
@@ -85,35 +94,52 @@ private:
 
   /**
    * Get the bundled edge if these two edges were to make up a bundle.
+   * @return A bundled edge that contains edge1 and edge2 as children, plus
+   *     any other children that may be part of edge1 or edge2's bundles.
    */
   Edge *getBundledEdge(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundled edge of two edges that currently are not part of a bundle.
+   * @return A new, bundled edge that contains edge1 and edge2.
    */
   Edge *getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2);
 
   /**
    * Get the source centroid point for two edges.
+   * @return A point that is the centroid of edge1 and edge2 source points.
    */
   Point getSourceCentroid(Edge &edge1, Edge &edge2);
+
   /**
    * Get the target centroid point for two edges.
+   * @return A point that is the centroid of edge1 and edge2 target points.
    */
   Point getTargetCentroid(Edge &edge1, Edge &edge2);
 
   /**
    * Get the centroid point for a set of edges.
+   * @return A point that is the centroid of all of the edges in the input
+   *     vector.
    */
   Point getCentroid(std::vector<Point> &points);
 
   /**
    * Grab the children of two bundles and put them into one bundle.
+   * @param edge1 A bundle that has children and no parents.
+   * @param edge2 A bundle that has children and no parents.
+   * @return A  new bundle that contains all of the children in edge1 and edge2
+   *     but is optimized to include the children of both.
    */
   Edge *mergeTwoBundles(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundle if edge1 were to be added to bundle.
+   * @param edge1 An edge that may or may not have a bundle already.
+   * @param bundle A bundle that already has children and no parents.
+   * @return A new bundle that is optimized to include all of the children in
+   * bundle
+   *     and it also includes edge1.
    */
   Edge *addEdgeToBundle(Edge &edge1, Edge &bundle);
 
@@ -162,6 +188,17 @@ private:
   void
   writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId,
               std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
+
+  /**
+   * Writes a point if the point hasn't been already written. It checks the
+   * pointToPointId map to see if the point has not been written and if it
+   * hasn't, it uses the nextPointId to write the point id to the file.
+   * @param pointsFilePointer A pointer to the file to write the points to.
+   * @param point The point to check and write if the point is not on the map.
+   * @param nextPointId  The point id to give to the point if it is written.
+   * @param pointToPointIdMap The map to check if the point has already been
+   *     added.
+   */
   void addPointIfNotInMap(
       FILE *pointsFilePointer, Point point, int &nextPointId,
       std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
@@ -184,6 +221,14 @@ private:
    */
   double getCurrentInkOfTwoEdges(Edge &edge1, Edge &edge2);
 
+  /**
+   * Estimates the ink savings if edge1 and edge 2 were to be put together on
+   * the same bundle.
+   * @param edge1 The first edge.
+   * @param edge2 The second edge.
+   * @return The ink saved by putting both edges on a same bundle and the
+   *     bundle that will contain them both if they were in the same bundle.
+   */
   InkAndBundle estimateInkSavings(Edge &edge1, Edge &edge2);
 
   /**
@@ -191,13 +236,28 @@ private:
    * @param edge The edge to find whose neighbor gives the most ink savings.
    * @param neighbors The neighbors to look at to see which one has the most
    *     most ink savings.
-   * @return The pointer to the neighbor that gives the most ink savings.
+   * @return The best neighbor to bundle with and the bundle that will contain
+   *     both the edge and the neighbor if they are put together.
    */
   NeighborAndBundle findBestNeighborForEdge(Edge &edge,
                                             std::vector<Edge *> &neighbors);
 
+  /**
+   * A value between 0 and 1. This parameters determines in what range should
+   * the meeting point be searched for. A value of 1 means that the algorithm
+   * will search for the meeting point considering all possible positions
+   * between the target point and the source point.
+   */
   double BRENT_SEARCH_RANGE = 0.75;
+
+  /**
+   * The precision to find the brent search minimum.
+   */
   int BRENT_SEARCH_PRECISION = std::numeric_limits<double>::digits;
+
+  /**
+   * The maximum iterations of brent search.
+   */
   boost::uintmax_t BRENT_SEARCH_MAX_ITERATIONS = 20;
 
   /**
