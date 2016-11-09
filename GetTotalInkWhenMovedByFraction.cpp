@@ -18,5 +18,5 @@ double GetTotalInkWhenMovedByFraction::operator()(double moveFactor) {
   for (Point childPoint : _childPoints) {
     totalInk += Point::getDistanceBetweenPoints(childPoint, newPoint);
   }
-  return totalInk * STRAIGHT_EDGE_PARAM;
+  return totalInk;
 }

@@ -172,9 +172,11 @@ int Graph::doMingle() {
       Edge &edge = *edgePointer;
       if (!edgePointer->hasParent()) {
         fillNeighborArrayWithEdgeNeighbors(edge, neighbors);
-        Edge *bestNeighborPointer = findBestNeighborForEdge(edge, neighbors);
-        if (bestNeighborPointer != nullptr) {
-          putTwoEdgesOnSameBundle(*edgePointer, *bestNeighborPointer);
+        NeighborAndBundle bestNeighborAndBundle =
+            findBestNeighborForEdge(edge, neighbors);
+        if (bestNeighborAndBundle.neighbor != nullptr) {
+          putTwoEdgesOnSameBundle(*edgePointer, *bestNeighborAndBundle.neighbor,
+                                  bestNeighborAndBundle.bundle);
           numBundled++;
         }
       }
@@ -199,23 +201,20 @@ void Graph::doRecursiveMingle() {
   }
 }
 
-void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2) {
-  Edge *parent = nullptr;
+void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2, Edge *parent) {
   if (!edge1.hasParent() && !edge2.hasParent()) {
-    parent = getBundledEdgeOfTwoUnbundledEdges(edge1, edge2);
+    edge1.setParent(parent);
+    edge2.setParent(parent);
   } else if (edge1.getParent() == edge2.getParent()) {
     // They are both in the same bundle so do nothing
     return;
   } else if (edge1.hasParent() && edge2.hasParent()) {
-    deleteParentEdge(edge1);
-    deleteParentEdge(edge2);
-    parent = mergeTwoBundles(*edge1.getParent(), *edge2.getParent());
+    removeParentEdge(edge1);
+    removeParentEdge(edge2);
   } else if (edge1.hasParent()) {
-    parent = addEdgeToBundle(edge2, *edge1.getParent());
-    deleteParentEdge(edge1);
+    removeParentEdge(edge1);
   } else {
-    parent = addEdgeToBundle(edge1, *edge2.getParent());
-    deleteParentEdge(edge2);
+    removeParentEdge(edge2);
   }
   for (Edge *edge : parent->getChildren()) {
     edge->setParent(parent);
@@ -223,43 +222,46 @@ void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2) {
   _parentEdges.push_back(parent);
 }
 
-void Graph::deleteParentEdge(Edge &edge) {
+void Graph::removeParentEdge(Edge &edge) {
   Edge *parent = edge.getParent();
   _parentEdges.erase(
       std::remove(_parentEdges.begin(), _parentEdges.end(), parent),
       _parentEdges.end());
+  delete parent;
   edge.clearParent();
 }
 
-Edge *Graph::findBestNeighborForEdge(Edge &edge,
-                                     std::vector<Edge *> &neighbors) {
+NeighborAndBundle
+Graph::findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors) {
   Edge *bestNeighborPointer = nullptr;
+  Edge *bestBundlePointer = nullptr;
   double maxInkSaved = 0.0;
   for (Edge *neighborPointer : neighbors) {
-    double inkSaved = estimateInkSavings(edge, *neighborPointer);
-    if (inkSaved > maxInkSaved) {
-      maxInkSaved = inkSaved;
+    InkAndBundle inkSavedAndBundle = estimateInkSavings(edge, *neighborPointer);
+    if (inkSavedAndBundle.ink > maxInkSaved) {
+      maxInkSaved = inkSavedAndBundle.ink;
+      delete bestBundlePointer;
+      bestBundlePointer = inkSavedAndBundle.bundle;
       bestNeighborPointer = neighborPointer;
     }
   }
-  return bestNeighborPointer;
+  return {bestNeighborPointer, bestBundlePointer};
 }
 
-double Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
+InkAndBundle Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
   // If both are bundled together, then there are no ink savings.
   if ((edge1.hasParent() && edge2.hasParent()) &&
       (edge1.getParent() == edge2.getParent())) {
-    return 0.0;
+    return {0.0, nullptr};
   }
   if (Point::getDistanceBetweenPoints(edge1.getSource(), edge2.getSource()) >
       Point::getDistanceBetweenPoints(edge1.getSource(), edge2.getTarget())) {
-    return 0.0;
+    return {0.0, nullptr};
   }
   double currentInk = getCurrentInkOfTwoEdges(edge1, edge2);
   Edge *bundledEdge = getBundledEdge(edge1, edge2);
   double inkSaving = currentInk - bundledEdge->getInk();
-  delete bundledEdge;
-  return inkSaving;
+  return {inkSaving, bundledEdge};
 }
 
 double Graph::getCurrentInkOfTwoEdges(Edge &edge1, Edge &edge2) {

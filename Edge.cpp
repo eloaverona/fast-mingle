@@ -17,7 +17,7 @@ void Edge::addChild(Edge *child) {
   _children.push_back(child);
   _ink += Point::getDistanceBetweenPoints(child->getSource(), getSource());
   _ink += Point::getDistanceBetweenPoints(child->getTarget(), getTarget());
-  _weight += 1;
+  _weight += child->getWeight();
 }
 
 void Edge::clearParent() {

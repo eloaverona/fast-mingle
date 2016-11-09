@@ -10,6 +10,8 @@
 
 #include "ANN/ANN.h"
 #include "Edge.h"
+#include "InkAndBundle.h"
+#include "NeighborAndBundle.h"
 #include <boost/cstdint.hpp>
 #include <limits>
 #include <unordered_map>
@@ -82,11 +84,6 @@ private:
                                           std::vector<Edge *> &neighbors);
 
   /**
-   * Estimate the ink savings if two edges were to make up one bundle.
-   */
-  double estimateInkSavings(Edge &edge1, Edge &edge2);
-
-  /**
    * Get the bundled edge if these two edges were to make up a bundle.
    */
   Edge *getBundledEdge(Edge &edge1, Edge &edge2);
@@ -129,7 +126,7 @@ private:
    * @param edge1 The first edge to be put on the same bundle as edge2.
    * @param edge2 The second edge to be put on the same bundle as edge1.
    */
-  void putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2);
+  void putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2, Edge *parent);
 
   /**
    * Deletes the parent edge of the provided edge from the _parentEdges array.
@@ -137,7 +134,7 @@ private:
    *
    * @param edge The edge whose parent should be deleted.
    */
-  void deleteParentEdge(Edge &edge);
+  void removeParentEdge(Edge &edge);
 
   /**
    * Writes the edges of a given edge. Looks at the edge's children and
@@ -187,6 +184,8 @@ private:
    */
   double getCurrentInkOfTwoEdges(Edge &edge1, Edge &edge2);
 
+  InkAndBundle estimateInkSavings(Edge &edge1, Edge &edge2);
+
   /**
    * Finds the neighbor that gives the most ink savings for an edge.
    * @param edge The edge to find whose neighbor gives the most ink savings.
@@ -194,7 +193,8 @@ private:
    *     most ink savings.
    * @return The pointer to the neighbor that gives the most ink savings.
    */
-  Edge *findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors);
+  NeighborAndBundle findBestNeighborForEdge(Edge &edge,
+                                            std::vector<Edge *> &neighbors);
 
   double BRENT_SEARCH_RANGE = 0.75;
   int BRENT_SEARCH_PRECISION = std::numeric_limits<double>::digits;
