@@ -14,11 +14,11 @@ def plotFromNodeAndEdgesFile(nodesFilePath, edgesFilePath):
         for line in edgesFile:
             parts = line.split(":")
             graph.add_edge(parts[0], parts[1], weight=parts[2])
-    plot(graph, layout=layout, vertex_size=3, bbox=(1000, 1000), edge_curved=0)
+    plot(graph, layout=layout, vertex_size=3, bbox=(1000, 1000), edge_curved=0, edge_arrow_size=0.7)
 
 
 if __name__ == "__main__":
     if (len(sys.argv) < 3):
-        printf("Usage python plot_igraph.py path_nodes.txt path_edges.txt")
+        print("Usage python plot_igraph.py path_nodes.txt path_edges.txt")
     else:
         plotFromNodeAndEdgesFile(sys.argv[1], sys.argv[2])
