@@ -207,6 +207,9 @@ void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2, Edge *parent) {
     edge2.setParent(parent);
   } else if (edge1.getParent() == edge2.getParent()) {
     // They are both in the same bundle so do nothing
+	if(parent != nullptr) {
+		delete parent;
+	}
     return;
   } else if (edge1.hasParent() && edge2.hasParent()) {
     removeParentEdge(edge1);
@@ -243,6 +246,9 @@ Graph::findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors) {
       delete bestBundlePointer;
       bestBundlePointer = inkSavedAndBundle.bundle;
       bestNeighborPointer = neighborPointer;
+    } else {
+      // We won't need this anymore so we can free it.
+      delete inkSavedAndBundle.bundle;
     }
   }
   return {bestNeighborPointer, bestBundlePointer};

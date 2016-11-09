@@ -21,6 +21,5 @@ void Edge::addChild(Edge *child) {
 }
 
 void Edge::clearParent() {
-  //	delete _parent;
   _parent = nullptr;
 }
