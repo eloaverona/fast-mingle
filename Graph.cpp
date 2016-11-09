@@ -85,8 +85,9 @@ void Graph::writeEdges(
   for (Edge *childPointer : edge.getChildren()) {
     Edge &child = *childPointer;
     writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
-    fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[sourcePoint],
-            pointToPointIdMap[child.getSource()], 1);
+    fprintf(edgesfilePointer, "%d:%d:%d\n",
+            pointToPointIdMap[child.getSource()],
+            pointToPointIdMap[sourcePoint], 1);
     fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[targetPoint],
             pointToPointIdMap[child.getTarget()], 1);
     if (child.hasChildren()) {
@@ -216,8 +217,9 @@ void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2) {
     parent = addEdgeToBundle(edge1, *edge2.getParent());
     deleteParentEdge(edge2);
   }
-  edge1.setParent(parent);
-  edge2.setParent(parent);
+  for (Edge *edge : parent->getChildren()) {
+    edge->setParent(parent);
+  }
   _parentEdges.push_back(parent);
 }
 

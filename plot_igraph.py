@@ -3,7 +3,7 @@ import sys
 
 
 def plotFromNodeAndEdgesFile(nodesFilePath, edgesFilePath):
-    graph = Graph()
+    graph = Graph(directed=True)
     layout = []
     with open(nodesFilePath) as nodesFile:
         for line in nodesFile:
