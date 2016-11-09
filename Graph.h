@@ -183,6 +183,11 @@ private:
                                 std::vector<Point> &sourcePoints);
 
   /**
+   * Gets the current ink occupied by the edge or the edge's bundles combined.
+   */
+  double getCurrentInkOfTwoEdges(Edge &edge1, Edge &edge2);
+
+  /**
    * Finds the neighbor that gives the most ink savings for an edge.
    * @param edge The edge to find whose neighbor gives the most ink savings.
    * @param neighbors The neighbors to look at to see which one has the most

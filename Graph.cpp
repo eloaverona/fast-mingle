@@ -251,7 +251,18 @@ double Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
       (edge1.getParent() == edge2.getParent())) {
     return 0.0;
   }
-  // Calculate the total ink of each edge that belongs to.
+  if (Point::getDistanceBetweenPoints(edge1.getSource(), edge2.getSource()) >
+      Point::getDistanceBetweenPoints(edge1.getSource(), edge2.getTarget())) {
+    return 0.0;
+  }
+  double currentInk = getCurrentInkOfTwoEdges(edge1, edge2);
+  Edge *bundledEdge = getBundledEdge(edge1, edge2);
+  double inkSaving = currentInk - bundledEdge->getInk();
+  delete bundledEdge;
+  return inkSaving;
+}
+
+double Graph::getCurrentInkOfTwoEdges(Edge &edge1, Edge &edge2) {
   double currentInk = 0.0;
   if (edge1.hasParent()) {
     currentInk += edge1.getParent()->getInk();
@@ -263,10 +274,7 @@ double Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
   } else {
     currentInk += edge2.getInk();
   }
-  Edge *bundledEdge = getBundledEdge(edge1, edge2);
-  double inkSaving = currentInk - bundledEdge->getInk();
-  delete bundledEdge;
-  return inkSaving;
+  return currentInk;
 }
 
 Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
