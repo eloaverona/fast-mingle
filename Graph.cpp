@@ -292,9 +292,9 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   std::vector<Point> targetPoints;
   targetPoints.push_back(edge1.getTarget());
   targetPoints.push_back(edge2.getTarget());
-  std::vector<int> pointWeights;
-  pointWeights.push_back(edge1.getWeight());
-  pointWeights.push_back(edge2.getWeight());
+  std::vector<double> pointWeights;
+  pointWeights.push_back(edge1.getInkWeight());
+  pointWeights.push_back(edge2.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
   Point sourceMeetingPoint = brentSearchMeetingPoint(
@@ -312,16 +312,16 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
          edge2.hasParent());
   std::vector<Point> sourcePoints;
   std::vector<Point> targetPoints;
-  std::vector<int> pointWeights;
+  std::vector<double> pointWeights;
   for (Edge *childEdge : edge1.getChildren()) {
     sourcePoints.push_back(childEdge->getSource());
     targetPoints.push_back(childEdge->getTarget());
-    pointWeights.push_back(childEdge->getWeight());
+    pointWeights.push_back(childEdge->getInkWeight());
   }
   for (Edge *childEdge : edge2.getChildren()) {
     sourcePoints.push_back(childEdge->getSource());
     targetPoints.push_back(childEdge->getTarget());
-    pointWeights.push_back(childEdge->getWeight());
+    pointWeights.push_back(childEdge->getInkWeight());
   }
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
@@ -343,15 +343,15 @@ Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   assert(!bundle.hasParent() && bundle.hasChildren());
   std::vector<Point> sourcePoints;
   std::vector<Point> targetPoints;
-  std::vector<int> pointWeights;
+  std::vector<double> pointWeights;
   for (Edge *childEdge : bundle.getChildren()) {
     sourcePoints.push_back(childEdge->getSource());
     targetPoints.push_back(childEdge->getTarget());
-    pointWeights.push_back(childEdge->getWeight());
+    pointWeights.push_back(childEdge->getInkWeight());
   }
   sourcePoints.push_back(edge1.getSource());
   targetPoints.push_back(edge1.getTarget());
-  pointWeights.push_back(edge1.getWeight());
+  pointWeights.push_back(edge1.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
   Point sourceMeetingPoint = brentSearchMeetingPoint(
@@ -380,17 +380,11 @@ Point Graph::getCentroid(std::vector<Point> &points) {
 
 Point Graph::brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
                                      std::vector<Point> sourcePoints,
-                                     std::vector<int> pointWeights) {
+                                     std::vector<double> pointWeights) {
   assert(sourcePoints.size() == pointWeights.size());
   Point moveVector = targetPoint - sourcePoint;
-  int weightTotal = 0;
-  for (int weight : pointWeights) {
-    weightTotal += weight;
-  }
-  sourcePoints.push_back(targetPoint);
-  pointWeights.push_back(weightTotal);
   GetTotalInkWhenMovedByFraction optimizationFunction =
-      GetTotalInkWhenMovedByFraction(sourcePoint, moveVector, sourcePoints, pointWeights);
+      GetTotalInkWhenMovedByFraction(sourcePoint, targetPoint, moveVector, sourcePoints, pointWeights);
   std::pair<double, double> result = boost::math::tools::brent_find_minima(
       optimizationFunction, -BRENT_SEARCH_RANGE, BRENT_SEARCH_RANGE,
       BRENT_SEARCH_PRECISION, BRENT_SEARCH_MAX_ITERATIONS);

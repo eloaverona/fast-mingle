@@ -30,8 +30,8 @@ public:
    * @param childPoints The distance is calculated between pointThatMoves and
    * these childPoints.
    */
-  GetTotalInkWhenMovedByFraction(Point &pointThatMoves, Point &moveVector,
-                                 std::vector<Point> &childPoints, std::vector<int> &pointWeights);
+  GetTotalInkWhenMovedByFraction(Point &sourcePoint,  Point &targetPoint, Point &moveVector,
+                                 std::vector<Point> &childPoints, std::vector<double> &pointWeights);
   /**
    * Calculate the new distance between pointThatMoves and childPoints when
    * pointThatMoves is
@@ -50,10 +50,12 @@ public:
   static constexpr double STRAIGHT_EDGE_PARAM = 1.69640;
 
 private:
-  Point _pointThatMoves;
+  Point _sourcePoint;
   Point _moveVector;
+  Point _targetPoint;
   std::vector<Point> _childPoints;
-  std::vector<int> _pointWeights;
+  std::vector<double> _pointWeights;
+  double _totalWeight;
 };
 
 #endif /* GETTOTALINKWHENMOVEDBYFRACTION_H_ */

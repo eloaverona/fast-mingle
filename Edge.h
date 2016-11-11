@@ -13,6 +13,7 @@
 
 #include "Point.h"
 #include <vector>
+#include <cmath>
 
 class Edge {
 public:
@@ -34,14 +35,22 @@ public:
   /**
    * Get the ink used by this edge and its children.
    */
-  double getInk() { return _ink; }
+  double getInk() { return _childrenInk + Point::getDistanceBetweenPoints(_source, _target) * getInkWeight(); }
 
   /**
    * Get the weight of this edge. The weight of this edge is equal to the number
-   * of children it
-   * has + 1.
+   * of children it has + 1.
    */
   int getWeight() { return _weight; }
+
+  /**
+   * Gets the weight of the ink of this edge. You can think of this value as the
+   * width of the marker that is used to draw the line of this edge. The paper
+   * describes that the ink is "proportional to the weight" but doesn't specify
+   * how. This is our solution.
+   */
+  double getInkWeight() {
+	  return log(double(_weight))/2 + 1.00;}
 
   /**
    * Get the edge's children. In the final mingled layout, each one of its
@@ -84,7 +93,7 @@ public:
 
 private:
   int _weight;
-  double _ink;
+  double _childrenInk;
   Point _source;
   Point _target;
   std::vector<Edge *> _children;

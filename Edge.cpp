@@ -9,14 +9,14 @@ Edge::Edge(Point source, Point target) {
   _source = source;
   _target = target;
   _weight = 1;
-  _ink = Point::getDistanceBetweenPoints(_source, _target);
+  _childrenInk = 0;
   _parent = nullptr;
 }
 
 void Edge::addChild(Edge *child) {
   _children.push_back(child);
-  _ink += Point::getDistanceBetweenPoints(child->getSource(), getSource());
-  _ink += Point::getDistanceBetweenPoints(child->getTarget(), getTarget());
+  _childrenInk += Point::getDistanceBetweenPoints(child->getSource(), getSource()) * child->getInkWeight();
+  _childrenInk += Point::getDistanceBetweenPoints(child->getTarget(), getTarget()) * child->getInkWeight();
   _weight += child->getWeight();
 }
 
