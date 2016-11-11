@@ -9,7 +9,7 @@ Edge::Edge(Point source, Point target) {
   _source = source;
   _target = target;
   _weight = 1;
-  _ink = Point::getDistanceBetweenPoints(source, target);
+  _ink = Point::getDistanceBetweenPoints(_source, _target);
   _parent = nullptr;
 }
 

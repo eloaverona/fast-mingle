@@ -31,7 +31,7 @@ public:
    * these childPoints.
    */
   GetTotalInkWhenMovedByFraction(Point &pointThatMoves, Point &moveVector,
-                                 std::vector<Point> &childPoints);
+                                 std::vector<Point> &childPoints, std::vector<int> &pointWeights);
   /**
    * Calculate the new distance between pointThatMoves and childPoints when
    * pointThatMoves is
@@ -53,6 +53,7 @@ private:
   Point _pointThatMoves;
   Point _moveVector;
   std::vector<Point> _childPoints;
+  std::vector<int> _pointWeights;
 };
 
 #endif /* GETTOTALINKWHENMOVEDBYFRACTION_H_ */
