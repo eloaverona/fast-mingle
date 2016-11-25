@@ -80,16 +80,16 @@ void Graph::writeEdges(
   Point targetPoint = edge.getTarget();
   if (!edge.hasParent()) {
     fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[sourcePoint],
-            pointToPointIdMap[targetPoint], 1);
+            pointToPointIdMap[targetPoint], edge.getWeight());
   }
   for (Edge *childPointer : edge.getChildren()) {
     Edge &child = *childPointer;
     writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
     fprintf(edgesfilePointer, "%d:%d:%d\n",
             pointToPointIdMap[child.getSource()],
-            pointToPointIdMap[sourcePoint], 1);
+            pointToPointIdMap[sourcePoint], childPointer->getWeight());
     fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[targetPoint],
-            pointToPointIdMap[child.getTarget()], 1);
+            pointToPointIdMap[child.getTarget()], childPointer->getWeight());
     if (child.hasChildren()) {
       writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
       writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, child,
@@ -97,6 +97,7 @@ void Graph::writeEdges(
     }
   }
 }
+
 
 void Graph::readNextEdgeInFile(FILE *filePointer) {
   float pointAx;
@@ -266,6 +267,9 @@ InkAndBundle Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
   }
   double currentInk = getCurrentInkOfTwoEdges(edge1, edge2);
   Edge *bundledEdge = getBundledEdge(edge1, edge2);
+  if (bundledEdge == nullptr) {
+	  return {0.0, nullptr};
+  }
   double inkSaving = currentInk - bundledEdge->getInk();
   return {inkSaving, bundledEdge};
 }
@@ -297,6 +301,7 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   pointWeights.push_back(edge2.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
+  try {
   Point sourceMeetingPoint = brentSearchMeetingPoint(
       sourceCentroid, targetCentroid, sourcePoints, pointWeights);
   Point targetMeetingPoint = brentSearchMeetingPoint(
@@ -305,6 +310,9 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   parentEdge->addChild(&edge1);
   parentEdge->addChild(&edge2);
   return parentEdge;
+  } catch (const char* msg) {
+	  return nullptr;
+  }
 }
 
 Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
@@ -325,6 +333,7 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
   }
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
+  try {
   Point sourceMeetingPoint = brentSearchMeetingPoint(
       sourceCentroid, targetCentroid, sourcePoints, pointWeights);
   Point targetMeetingPoint = brentSearchMeetingPoint(
@@ -337,6 +346,9 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
     newParentEdge->addChild(childEdge);
   }
   return newParentEdge;
+  } catch (const char* msg) {
+	  return nullptr;
+  }
 }
 
 Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
@@ -354,16 +366,20 @@ Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   pointWeights.push_back(edge1.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
-  Point sourceMeetingPoint = brentSearchMeetingPoint(
-      sourceCentroid, targetCentroid, sourcePoints, pointWeights);
-  Point targetMeetingPoint = brentSearchMeetingPoint(
-      targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
-  Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
-  for (Edge *childEdge : bundle.getChildren()) {
-    newParentEdge->addChild(childEdge);
+  try {
+	  Point sourceMeetingPoint = brentSearchMeetingPoint(
+		  sourceCentroid, targetCentroid, sourcePoints, pointWeights);
+	  Point targetMeetingPoint = brentSearchMeetingPoint(
+		  targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
+	  Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+	  for (Edge *childEdge : bundle.getChildren()) {
+		newParentEdge->addChild(childEdge);
+	  }
+	  newParentEdge->addChild(&edge1);
+	  return newParentEdge;
+  } catch (const char* msg) {
+	  return nullptr;
   }
-  newParentEdge->addChild(&edge1);
-  return newParentEdge;
 }
 
 Point Graph::getCentroid(std::vector<Point> &points) {
@@ -385,9 +401,56 @@ Point Graph::brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
   Point moveVector = targetPoint - sourcePoint;
   GetTotalInkWhenMovedByFraction optimizationFunction =
       GetTotalInkWhenMovedByFraction(sourcePoint, targetPoint, moveVector, sourcePoints, pointWeights);
+  double minimum;
+  try {
+	  minimum = findMinimum(sourcePoint, targetPoint, sourcePoints, 1.00);
+  } catch (const char* msg) {
+	  throw msg;
+  }
   std::pair<double, double> result = boost::math::tools::brent_find_minima(
-      optimizationFunction, -BRENT_SEARCH_RANGE, BRENT_SEARCH_RANGE,
+      optimizationFunction, minimum, 1.0,
       BRENT_SEARCH_PRECISION, BRENT_SEARCH_MAX_ITERATIONS);
   Point diff = moveVector * result.first;
   return sourcePoint + diff;
+}
+
+double Graph::findMinimum(Point &sourcePoint, Point &targetPoint,
+        std::vector<Point> sourcePoints, double searchMaximum){
+	Point moveVector = targetPoint - sourcePoint;
+	Point modifiedMiddlePoint;
+	Point modifiedMaximumPoint;
+	double minimum = 0.00;
+	double maximum = searchMaximum;
+	double average = (maximum + minimum) / 2.0;
+	Point modification = (moveVector * maximum);
+	modifiedMaximumPoint = sourcePoint + modification;
+	bool doesMaximumExceedAngle = doSourcePointsExceedAngle(modifiedMaximumPoint, targetPoint, sourcePoints, 0.9);
+	if (doesMaximumExceedAngle) {
+		throw "There are no points that do not exceed the angle.";
+	}
+	int maxIterations = 50;
+	double precission = 0.01;
+	int i = 0;
+	while (i < maxIterations && (maximum - minimum) > precission) {
+		modification = moveVector * average;
+		modifiedMiddlePoint = sourcePoint + modification;
+		if (doSourcePointsExceedAngle(modifiedMiddlePoint, targetPoint, sourcePoints, 0.9) ) {
+			minimum = average;
+		} else {
+			maximum = average;
+		}
+		average = (maximum + minimum) / 2.00;
+		i++;
+	}
+	return average;
+}
+
+bool Graph::doSourcePointsExceedAngle(Point &sourcePoint, Point &targetPoint, std::vector<Point> sourcePoints, double maxAngle) {
+	Point moveVector = targetPoint - sourcePoint;
+	for (Point point : sourcePoints) {
+		if (Point::getAngleBetweenVectors(moveVector, sourcePoint - point) > maxAngle) {
+			return true;
+		}
+	}
+	return false;
 }

@@ -19,6 +19,21 @@ struct Point {
     double diffY = point1.y - point2.y;
     return sqrt(diffX * diffX + diffY * diffY);
   }
+
+  static double getDotProductOfVectors(Point point1, Point point2) {
+         return point1.x * point2.x + point1.y * point2.y;
+  }
+
+  static double getLengthOfVector(Point vector) {
+            return sqrt(vector.x * vector.x + vector.y * vector.y);
+  }
+
+  static double getAngleBetweenVectors(Point vector1, Point vector2) {
+	  double dotProd = Point::getDotProductOfVectors(vector1, vector2);
+	  double lengthProduct = Point::getLengthOfVector(vector1) * Point::getLengthOfVector(vector2);
+	  return acos(dotProd / lengthProduct);
+  }
+
 };
 
 struct PointHasher {

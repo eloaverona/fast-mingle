@@ -248,7 +248,12 @@ private:
    * will search for the meeting point considering all possible positions
    * between the target point and the source point.
    */
-  double BRENT_SEARCH_RANGE = 0.75;
+  double BRENT_SEARCH_RANGE = 1.00;
+
+  double findMinimum(Point &sourcePoint, Point &targetPoint,
+          std::vector<Point> sourcePoints, double searchRange);
+
+  bool doSourcePointsExceedAngle(Point &sourcePoint, Point &targetPoint, std::vector<Point> sourcePoints, double maxAngle);
 
   /**
    * The precision to find the brent search minimum.
