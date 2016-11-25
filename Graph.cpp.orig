@@ -2,12 +2,11 @@
  * Graph implementation file.
  */
 
-#include "Graph.h"
 #include "GetTotalInkWhenMovedByFraction.h"
+#include "Graph.h"
 #include "Point.h"
 #include </usr/include/boost/math/tools/minima.hpp>
 #include <cassert>
-#include <stdio.h>
 
 Graph::Graph() {}
 
@@ -301,23 +300,37 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   pointWeights.push_back(edge2.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   try {
-    Point adjustedSourcePoint =
-        getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
-    Point adjustedTargetPoint =
-        getMinimumSourcePoint(targetPoints, targetCentroid, sourceCentroid);
     Point sourceMeetingPoint = brentSearchMeetingPoint(
-        adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
+        sourceCentroid, targetCentroid, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
-        adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
+        targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
+=======
+=======
+>>>>>>> Stashed changes
+    Point sourceMeetingPoint = brentSearchMeetingPoint(
+        sourceCentroid, targetCentroid, sourcePoints, pointWeights);
+    Point targetMeetingPoint = brentSearchMeetingPoint(
+        sourceCentroid, sourceMeetingPoint, targetPoints, pointWeights);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     Edge *parentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
     parentEdge->addChild(&edge1);
     parentEdge->addChild(&edge2);
     return parentEdge;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   } catch (const char *msg) {
-    // No points
     return nullptr;
   }
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 }
 
 Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
@@ -338,15 +351,13 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
   }
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   try {
-    Point adjustedSourcePoint =
-        getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
-    Point adjustedTargetPoint =
-        getMinimumSourcePoint(targetPoints, targetCentroid, sourceCentroid);
     Point sourceMeetingPoint = brentSearchMeetingPoint(
-        adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
+        sourceCentroid, targetCentroid, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
-        adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
+        targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
     Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
     for (Edge *childEdge : edge1.getChildren()) {
       newParentEdge->addChild(childEdge);
@@ -357,102 +368,166 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
     return newParentEdge;
   } catch (const char *msg) {
     return nullptr;
-  }
-}
-
-Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
-  assert(!bundle.hasParent() && bundle.hasChildren());
-  std::vector<Point> sourcePoints;
-  std::vector<Point> targetPoints;
-  std::vector<double> pointWeights;
-  for (Edge *childEdge : bundle.getChildren()) {
-    sourcePoints.push_back(childEdge->getSource());
-    targetPoints.push_back(childEdge->getTarget());
-    pointWeights.push_back(childEdge->getInkWeight());
-  }
-  sourcePoints.push_back(edge1.getSource());
-  targetPoints.push_back(edge1.getTarget());
-  pointWeights.push_back(edge1.getInkWeight());
-  Point sourceCentroid = getCentroid(sourcePoints);
-  Point targetCentroid = getCentroid(targetPoints);
-  try {
-    Point adjustedSourcePoint =
-        getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
-    Point adjustedTargetPoint =
-        getMinimumSourcePoint(targetPoints, targetCentroid, sourceCentroid);
+=======
+=======
+>>>>>>> Stashed changes
     Point sourceMeetingPoint = brentSearchMeetingPoint(
-        adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
+        sourceCentroid, targetCentroid, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
-        adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
+        targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
     Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
-    for (Edge *childEdge : bundle.getChildren()) {
+    for (Edge *childEdge : edge1.getChildren()) {
       newParentEdge->addChild(childEdge);
     }
-    newParentEdge->addChild(&edge1);
+    for (Edge *childEdge : edge2.getChildren()) {
+      newParentEdge->addChild(childEdge);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+    }
     return newParentEdge;
-  } catch (const char *msg) {
-    return nullptr;
   }
-}
 
-Point Graph::getCentroid(std::vector<Point> &points) {
-  float xSum = 0.0f;
-  float ySum = 0.0f;
-  int numPoints = 0;
-  for (Point point : points) {
-    xSum += point.x;
-    ySum += point.y;
-    numPoints += 1;
-  }
-  return {xSum / numPoints, ySum / numPoints};
-}
-
-Point Graph::brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
-                                     std::vector<Point> sourcePoints,
-                                     std::vector<double> pointWeights) {
-  assert(sourcePoints.size() == pointWeights.size());
-  Point moveVector = targetPoint - sourcePoint;
-  GetTotalInkWhenMovedByFraction optimizationFunction =
-      GetTotalInkWhenMovedByFraction(sourcePoint, targetPoint, moveVector,
-                                     sourcePoints, pointWeights);
-  std::pair<double, double> result = boost::math::tools::brent_find_minima(
-      optimizationFunction, 0.00, 1.00, BRENT_SEARCH_PRECISION,
-      BRENT_SEARCH_MAX_ITERATIONS);
-  Point diff = moveVector * result.first;
-  return sourcePoint + diff;
-}
-
-Point Graph::getMinimumSourcePoint(std::vector<Point> points, Point sourcePoint,
-                                   Point targetPoint) {
-  assert(points.size() > 0);
-  Point moveUnitVector = Point::getUnitVector(targetPoint - sourcePoint);
-  Point perpendicularVector = Point::getPerPendicularVector(moveUnitVector);
-  double maximum = -DBL_MAX;
-  for (Point childPoint : points) {
-    double totalMove = 0.00;
-    if (!(abs(Point::getSlopeOfPoints(targetPoint, sourcePoint) -
-              Point::getSlopeOfPoints(sourcePoint, childPoint)) < 0.1)) {
-      double determinant = 1.00 / ((perpendicularVector.x * moveUnitVector.y) -
-                                   (perpendicularVector.y * moveUnitVector.x));
-      double perpendicularMoveFactor =
-          determinant * (moveUnitVector.y * (sourcePoint.x - childPoint.x) -
-                         moveUnitVector.x * (sourcePoint.y - childPoint.y));
-      double moveFactor =
-          -1.00 * determinant *
-          (perpendicularVector.x * (sourcePoint.y - childPoint.y) -
-           perpendicularVector.y * (sourcePoint.x - childPoint.x));
-      double maximumMoveFactor = abs(perpendicularMoveFactor) / TAN_MAX_ANGLE;
-      totalMove = moveFactor + maximumMoveFactor;
+  Edge *Graph::addEdgeToBundle(Edge & edge1, Edge & bundle) {
+    assert(!bundle.hasParent() && bundle.hasChildren());
+    std::vector<Point> sourcePoints;
+    std::vector<Point> targetPoints;
+    std::vector<double> pointWeights;
+    for (Edge *childEdge : bundle.getChildren()) {
+      sourcePoints.push_back(childEdge->getSource());
+      targetPoints.push_back(childEdge->getTarget());
+      pointWeights.push_back(childEdge->getInkWeight());
     }
-    if (maximum < totalMove) {
-      maximum = totalMove;
-    }
-  }
-  // The point exceeds the target point, therefore throw an exception.
-  if (Point::getDistanceBetweenPoints(targetPoint, sourcePoint) < maximum) {
-    throw "The minimum point exceeds the target point. There is no point that "
-          "will make the point sstay within the angle.";
-  }
-  Point addition = moveUnitVector * maximum;
-  return sourcePoint + addition;
+    sourcePoints.push_back(edge1.getSource());
+    targetPoints.push_back(edge1.getTarget());
+    pointWeights.push_back(edge1.getInkWeight());
+    Point sourceCentroid = getCentroid(sourcePoints);
+    Point targetCentroid = getCentroid(targetPoints);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+    try {
+      Point sourceMeetingPoint = brentSearchMeetingPoint(
+          sourceCentroid, targetCentroid, sourcePoints, pointWeights);
+      Point targetMeetingPoint = brentSearchMeetingPoint(
+          targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
+      Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+      for (Edge *childEdge : bundle.getChildren()) {
+        newParentEdge->addChild(childEdge);
+      }
+      newParentEdge->addChild(&edge1);
+      return newParentEdge;
+    } catch (const char *msg) {
+      return nullptr;
+=======
+=======
+>>>>>>> Stashed changes
+      Point sourceMeetingPoint = brentSearchMeetingPoint(
+          sourceCentroid, targetCentroid, sourcePoints, pointWeights);
+      Point targetMeetingPoint = brentSearchMeetingPoint(
+          targetCentroid, sourceMeetingPoint, targetPoints, pointWeights);
+      Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+      for (Edge *childEdge : bundle.getChildren()) {
+        newParentEdge->addChild(childEdge);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+      }
+      newParentEdge->addChild(&edge1);
+      return newParentEdge;
+=======
 }
+newParentEdge->addChild(&edge1);
+return newParentEdge;
+}
+
+bool Graph::doVectorsPointTheSameDirection(Point vectorOne, Point vectorTwo) {
+  double dotProduct = Point::getDotProductOfPoints(vectorOne, vectorTwo);
+  return dotProduct > 0.0;
+>>>>>>> Stashed changes
+    }
+
+    Point Graph::getCentroid(std::vector<Point> & points) {
+      float xSum = 0.0f;
+      float ySum = 0.0f;
+      int numPoints = 0;
+      for (Point point : points) {
+        xSum += point.x;
+        ySum += point.y;
+        numPoints += 1;
+      }
+      return {xSum / numPoints, ySum / numPoints};
+    }
+
+    Point Graph::brentSearchMeetingPoint(
+        Point & sourcePoint, Point & targetPoint,
+        std::vector<Point> sourcePoints, std::vector<double> pointWeights) {
+      assert(sourcePoints.size() == pointWeights.size());
+      Point moveVector = targetPoint - sourcePoint;
+      GetTotalInkWhenMovedByFraction optimizationFunction =
+          GetTotalInkWhenMovedByFraction(sourcePoint, targetPoint, moveVector,
+                                         sourcePoints, pointWeights);
+      double minimum;
+      try {
+        minimum = findMinimum(sourcePoint, targetPoint, sourcePoints, 1.00);
+      } catch (const char *msg) {
+        throw msg;
+      }
+      std::pair<double, double> result = boost::math::tools::brent_find_minima(
+          optimizationFunction, minimum, 1.0, BRENT_SEARCH_PRECISION,
+          BRENT_SEARCH_MAX_ITERATIONS);
+      Point diff = moveVector * result.first;
+      return sourcePoint + diff;
+    }
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+
+    double Graph::findMinimum(Point & sourcePoint, Point & targetPoint,
+                              std::vector<Point> sourcePoints,
+                              double searchMaximum) {
+      Point moveVector = targetPoint - sourcePoint;
+      Point modifiedMiddlePoint;
+      Point modifiedMaximumPoint;
+      double minimum = 0.00;
+      double maximum = searchMaximum;
+      double average = (maximum + minimum) / 2.0;
+      Point modification = (moveVector * maximum);
+      modifiedMaximumPoint = sourcePoint + modification;
+      bool doesMaximumExceedAngle = doSourcePointsExceedAngle(
+          modifiedMaximumPoint, targetPoint, sourcePoints, 0.9);
+      if (doesMaximumExceedAngle) {
+        throw "There are no points that do not exceed the angle.";
+      }
+      int maxIterations = 50;
+      double precission = 0.01;
+      int i = 0;
+      while (i < maxIterations && (maximum - minimum) > precission) {
+        modification = moveVector * average;
+        modifiedMiddlePoint = sourcePoint + modification;
+        if (doSourcePointsExceedAngle(modifiedMiddlePoint, targetPoint,
+                                      sourcePoints, 0.9)) {
+          minimum = average;
+        } else {
+          maximum = average;
+        }
+        average = (maximum + minimum) / 2.00;
+        i++;
+      }
+      return average;
+    }
+
+    bool Graph::doSourcePointsExceedAngle(
+        Point & sourcePoint, Point & targetPoint,
+        std::vector<Point> sourcePoints, double maxAngle) {
+      Point moveVector = targetPoint - sourcePoint;
+      for (Point point : sourcePoints) {
+        if (Point::getAngleBetweenVectors(moveVector, sourcePoint - point) >
+            maxAngle) {
+          return true;
+        }
+      }
+      return false;
+    }
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes

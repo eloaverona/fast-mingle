@@ -214,7 +214,8 @@ private:
    * sourcePoint is connected to.
    */
   Point brentSearchMeetingPoint(Point &sourcePoint, Point &targetPoint,
-          std::vector<Point> sourcePoints, std::vector<double> pointWeights);
+                                std::vector<Point> sourcePoints,
+                                std::vector<double> pointWeights);
 
   /**
    * Gets the current ink occupied by the edge or the edge's bundles combined.
@@ -243,17 +244,18 @@ private:
                                             std::vector<Edge *> &neighbors);
 
   /**
-   * A value between 0 and 1. This parameters determines in what range should
-   * the meeting point be searched for. A value of 1 means that the algorithm
-   * will search for the meeting point considering all possible positions
-   * between the target point and the source point.
+   * Gets the source point that is closes to the points, but that still keeps
+   * the angle
+   * in the boundaries. Look at TAN_MAX_ANGLE to find out which angle is this.
    */
-  double BRENT_SEARCH_RANGE = 1.00;
+  Point getMinimumSourcePoint(std::vector<Point> points, Point sourcePoint,
+                              Point targetPoint);
 
-  double findMinimum(Point &sourcePoint, Point &targetPoint,
-          std::vector<Point> sourcePoints, double searchRange);
-
-  bool doSourcePointsExceedAngle(Point &sourcePoint, Point &targetPoint, std::vector<Point> sourcePoints, double maxAngle);
+  /**
+   * The tangent for the maximum turning angle. The tangent of 35 degrees is
+   * 0.700207.
+   */
+  double TAN_MAX_ANGLE = 0.700207;
 
   /**
    * The precision to find the brent search minimum.

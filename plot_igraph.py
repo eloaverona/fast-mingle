@@ -13,8 +13,18 @@ def plotFromNodeAndEdgesFile(nodesFilePath, edgesFilePath):
     with open(edgesFilePath) as edgesFile:
         for line in edgesFile:
             parts = line.split(":")
-            graph.add_edge(parts[0], parts[1], weight=parts[2], width=float(parts[2])/10)
-    plot(graph, layout=layout, vertex_size=3, bbox=(1000, 1000), edge_curved=0, edge_arrow_size=0.5)
+            graph.add_edge(
+                parts[0],
+                parts[1],
+                weight=parts[2],
+                width=float(parts[2]) / 10)
+    plot(
+        graph,
+        layout=layout,
+        vertex_size=3,
+        bbox=(1000, 1000),
+        edge_curved=0,
+        edge_arrow_size=0.5)
 
 
 if __name__ == "__main__":
