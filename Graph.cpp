@@ -19,6 +19,7 @@ void Graph::readEdgesFromFile(const char *edgesFilePath) {
 
   int numEdges;
   fscanf(filePointer, "%i", &numEdges);
+  printf("Reading %d edges.\n", numEdges);
   _edges.reserve(numEdges);
   for (int i = 0; i < numEdges; ++i) {
     readNextEdgeInFile(filePointer);
@@ -168,6 +169,9 @@ int Graph::doMingle() {
   int numIterations = 0;
   rebuildIndex();
   do {
+    if (numIterations % 100 == 0) {
+      printf("Iteration number %d...\n", numIterations);
+    }
     numBundled = 0;
     for (Edge *edgePointer : _edges) {
       Edge &edge = *edgePointer;
@@ -189,7 +193,9 @@ int Graph::doMingle() {
 
 void Graph::doRecursiveMingle() {
   int numIterations = doMingle();
+  int recursiveCount = 1;
   while (numIterations > 1) {
+    printf("Recursive step number %d.\n", recursiveCount);
     for (Edge *edge : _edges) {
       if (!edge->hasParent()) {
         _parentEdges.push_back(edge);
@@ -199,6 +205,7 @@ void Graph::doRecursiveMingle() {
     _parentEdges.clear();
     adjustNumNeighbors();
     numIterations = doMingle();
+    recursiveCount++;
   }
 }
 

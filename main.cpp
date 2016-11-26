@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   Graph *graph = new Graph();
+  printf("Created graph.\n");
   graph->readEdgesFromFile(argv[1]);
   graph->doRecursiveMingle();
   graph->writePointsAndEdges(argv[2], argv[3]);
