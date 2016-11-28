@@ -167,10 +167,11 @@ int Graph::doMingle() {
   std::vector<Edge *> neighbors;
   int numBundled = 0;
   int numIterations = 0;
+  int loopNum = 0;
   rebuildIndex();
   do {
-    if (numIterations % 100 == 0) {
-      printf("Iteration number %d...\n", numIterations);
+    if (loopNum % 100 == 0) {
+      printf("Loop number %d...\n", numIterations);
     }
     numBundled = 0;
     for (Edge *edgePointer : _edges) {
@@ -187,6 +188,7 @@ int Graph::doMingle() {
       }
     }
     numIterations++;
+    loopNum++;
   } while (numBundled > 0);
   return numIterations;
 }
@@ -308,21 +310,25 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   pointWeights.push_back(edge2.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
+  Edge *parentEdge = nullptr;
   try {
     Point adjustedSourcePoint =
         getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
-    Point adjustedTargetPoint =
-        getMinimumSourcePoint(targetPoints, targetCentroid, sourceCentroid);
+    Point adjustedTargetPoint = getMinimumSourcePoint(
+        targetPoints, targetCentroid, adjustedSourcePoint);
     Point sourceMeetingPoint = brentSearchMeetingPoint(
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    Edge *parentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+    parentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
     parentEdge->addChild(&edge1);
     parentEdge->addChild(&edge2);
     return parentEdge;
   } catch (const char *msg) {
     // No points
+    if (parentEdge != nullptr) {
+      delete parentEdge;
+    }
     return nullptr;
   }
 }
@@ -345,16 +351,17 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
   }
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
+  Edge *newParentEdge = nullptr;
   try {
     Point adjustedSourcePoint =
         getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
-    Point adjustedTargetPoint =
-        getMinimumSourcePoint(targetPoints, targetCentroid, sourceCentroid);
+    Point adjustedTargetPoint = getMinimumSourcePoint(
+        targetPoints, targetCentroid, adjustedSourcePoint);
     Point sourceMeetingPoint = brentSearchMeetingPoint(
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+    newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
     for (Edge *childEdge : edge1.getChildren()) {
       newParentEdge->addChild(childEdge);
     }
@@ -363,6 +370,9 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
     }
     return newParentEdge;
   } catch (const char *msg) {
+    if (newParentEdge != nullptr) {
+      delete newParentEdge;
+    }
     return nullptr;
   }
 }
@@ -382,22 +392,26 @@ Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   pointWeights.push_back(edge1.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
+  Edge *newParentEdge = nullptr;
   try {
     Point adjustedSourcePoint =
         getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
-    Point adjustedTargetPoint =
-        getMinimumSourcePoint(targetPoints, targetCentroid, sourceCentroid);
+    Point adjustedTargetPoint = getMinimumSourcePoint(
+        targetPoints, targetCentroid, adjustedSourcePoint);
     Point sourceMeetingPoint = brentSearchMeetingPoint(
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    Edge *newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+    newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
     for (Edge *childEdge : bundle.getChildren()) {
       newParentEdge->addChild(childEdge);
     }
     newParentEdge->addChild(&edge1);
     return newParentEdge;
   } catch (const char *msg) {
+    if (newParentEdge != nullptr) {
+      delete newParentEdge;
+    }
     return nullptr;
   }
 }

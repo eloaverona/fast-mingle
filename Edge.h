@@ -12,8 +12,8 @@
 #define EDGE_H_
 
 #include "Point.h"
-#include <vector>
 #include <cmath>
+#include <vector>
 
 class Edge {
 public:
@@ -35,7 +35,10 @@ public:
   /**
    * Get the ink used by this edge and its children.
    */
-  double getInk() { return _childrenInk + Point::getDistanceBetweenPoints(_source, _target) * getInkWeight(); }
+  double getInk() {
+    return _childrenInk +
+           Point::getDistanceBetweenPoints(_source, _target) * getInkWeight();
+  }
 
   /**
    * Get the weight of this edge. The weight of this edge is equal to the number
@@ -49,8 +52,7 @@ public:
    * describes that the ink is "proportional to the weight" but doesn't specify
    * how. This is our solution.
    */
-  double getInkWeight() {
-	  return log(double(_weight))/2 + 1.00;}
+  double getInkWeight() { return log(double(_weight)) / 2 + 1.00; }
 
   /**
    * Get the edge's children. In the final mingled layout, each one of its
@@ -91,6 +93,11 @@ public:
    */
   bool hasChildren() { return _children.size() > 0; }
 
+  /**
+   * Maximum angle allowed by the children.
+   */
+  static constexpr double maximumAngle = 0.69813;
+
 private:
   int _weight;
   double _childrenInk;
@@ -98,6 +105,11 @@ private:
   Point _target;
   std::vector<Edge *> _children;
   Edge *_parent;
+
+  /**
+   * Check if the given child would fall within the limit angle.
+   */
+  bool isChildWithinAngle(Edge *child);
 };
 
 #endif /* EDGE_H_ */

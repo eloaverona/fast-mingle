@@ -252,10 +252,10 @@ private:
                               Point targetPoint);
 
   /**
-   * The tangent for the maximum turning angle. The tangent of 35 degrees is
-   * 0.700207.
+   * The tangent for the maximum turning angle. The tangent of 40 degrees is
+   * 0.83909.
    */
-  double TAN_MAX_ANGLE = 0.700207;
+  double TAN_MAX_ANGLE = 0.83909;
 
   /**
    * The precision to find the brent search minimum.
