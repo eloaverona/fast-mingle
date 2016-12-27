@@ -44,6 +44,13 @@ struct Point {
     return acos(dotProd / lengthProduct);
   }
 
+  static double getCosineOfAngleBetweenVectors(Point vector1, Point vector2) {
+    double dotProd = Point::getDotProductOfVectors(vector1, vector2);
+    double lengthProduct =
+        Point::getLengthOfVector(vector1) * Point::getLengthOfVector(vector2);
+    return dotProd / lengthProduct;
+  }
+
   static double getSlopeOfPoints(Point point1, Point point2) {
     return (point2.y - point1.y) / (point1.x - point2.x);
   }

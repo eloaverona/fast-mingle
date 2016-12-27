@@ -31,12 +31,12 @@ bool Edge::isChildWithinAngle(Edge *child) {
   bool isWithinAngle = true;
   Point childSource = child->getSource();
   Point childTarget = child->getTarget();
-  if (Point::getAngleBetweenVectors(_target - _source, _source - childSource) >
-      maximumAngle) {
+  if (Point::getCosineOfAngleBetweenVectors(
+          _target - _source, _source - childSource) < cosineMaximumAngle) {
     isWithinAngle = false;
   }
-  if (Point::getAngleBetweenVectors(_source - _target, _target - childTarget) >
-      maximumAngle) {
+  if (Point::getCosineOfAngleBetweenVectors(
+          _source - _target, _target - childTarget) < cosineMaximumAngle) {
     isWithinAngle = false;
   }
   return isWithinAngle;

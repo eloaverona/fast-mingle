@@ -96,7 +96,7 @@ public:
   /**
    * Maximum angle allowed by the children.
    */
-  static constexpr double maximumAngle = 0.69813;
+  static constexpr double cosineMaximumAngle = 0.76604;
 
 private:
   int _weight;
