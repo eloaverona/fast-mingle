@@ -5,6 +5,7 @@
 #ifndef POINT_H_
 #define POINT_H_
 
+#include "fastsqrt.h"
 #include <cmath>
 
 struct Point {
@@ -22,7 +23,7 @@ struct Point {
   static double getDistanceBetweenPoints(Point point1, Point point2) {
     double diffX = point1.x - point2.x;
     double diffY = point1.y - point2.y;
-    return sqrt(diffX * diffX + diffY * diffY);
+    return fastsqrt(diffX * diffX + diffY * diffY);
   }
 
   static double getDotProductOfVectors(Point point1, Point point2) {
@@ -34,9 +35,12 @@ struct Point {
   }
 
   static double getLengthOfVector(Point vector) {
-    return sqrt(vector.x * vector.x + vector.y * vector.y);
+    return fastsqrt(vector.x * vector.x + vector.y * vector.y);
   }
 
+  /**
+   * Discouraged, acos() function is slow.
+   */
   static double getAngleBetweenVectors(Point vector1, Point vector2) {
     double dotProd = Point::getDotProductOfVectors(vector1, vector2);
     double lengthProduct =
