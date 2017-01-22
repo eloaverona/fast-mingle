@@ -9,29 +9,29 @@
 #define FASTSQRT_H_
 
 /**
-* Fast square root calculation taken from https://www.codeproject.com/Articles/69941/Best-Square-Root-Method-Algorithm-Function-Precisi
+* Fast square root calculation taken from
+* https://www.codeproject.com/Articles/69941/Best-Square-Root-Method-Algorithm-Function-Precisi
 */
-  static double Abs(double Nbr)
- {
-  if( Nbr >= 0 )
-   return Nbr;
-  else
-   return -Nbr;
- }
+static double fastsqrt(const double number) {
+  const double ACCURACY = 0.001;
+  double lower, upper, guess;
 
- static double fastsqrt(double Nbr)
- {
-  double Number = Nbr / 2;
-  const double Tolerance = 1.0e-7;
-  do
-  {
-   Number = (Number + Nbr / Number) / 2;
-  }while( Abs(Number * Number - Nbr) > Tolerance);
+  if (number < 1) {
+    lower = number;
+    upper = 1;
+  } else {
+    lower = 1;
+    upper = number;
+  }
 
-  return Number;
- }
-
-
-
+  while ((upper - lower) > ACCURACY) {
+    guess = (lower + upper) / 2;
+    if (guess * guess > number)
+      upper = guess;
+    else
+      lower = guess;
+  }
+  return (lower + upper) / 2;
+}
 
 #endif /* FASTSQRT_H_ */

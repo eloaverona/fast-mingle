@@ -23,7 +23,7 @@ struct Point {
   static double getDistanceBetweenPoints(Point point1, Point point2) {
     double diffX = point1.x - point2.x;
     double diffY = point1.y - point2.y;
-    return fastsqrt(diffX * diffX + diffY * diffY);
+    return sqrt(diffX * diffX + diffY * diffY);
   }
 
   static double getDotProductOfVectors(Point point1, Point point2) {
@@ -35,7 +35,7 @@ struct Point {
   }
 
   static double getLengthOfVector(Point vector) {
-    return fastsqrt(vector.x * vector.x + vector.y * vector.y);
+    return sqrt(vector.x * vector.x + vector.y * vector.y);
   }
 
   /**
