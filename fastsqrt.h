@@ -8,30 +8,31 @@
 #ifndef FASTSQRT_H_
 #define FASTSQRT_H_
 
+#include <math.h>
+
 /**
-* Fast square root calculation taken from
-* https://www.codeproject.com/Articles/69941/Best-Square-Root-Method-Algorithm-Function-Precisi
+* Fast square root calculation adapted from
+* http://stackoverflow.com/questions/19611198/finding-square-root-without-using-sqrt-function
 */
-static double fastsqrt(const double number) {
-  const double ACCURACY = 0.001;
-  double lower, upper, guess;
-
-  if (number < 1) {
-    lower = number;
-    upper = 1;
-  } else {
-    lower = 1;
-    upper = number;
+static double fastsqrt(double x) {
+  int MAX_ITER = 2;
+  if (x <= 0)
+    return 0; // if negative number throw an exception?
+  int exp = 0;
+  x = frexp(x, &exp); // extract binary exponent from x
+  if (exp & 1) {      // we want exponent to be even
+    exp--;
+    x *= 2;
   }
-
-  while ((upper - lower) > ACCURACY) {
-    guess = (lower + upper) / 2;
-    if (guess * guess > number)
-      upper = guess;
-    else
-      lower = guess;
+  double y = (1 + x) / 2; // first approximation
+  double z = 0;
+  int i;
+  while (y != z && i < MAX_ITER) { // yes, we CAN compare doubles here!
+    z = y;
+    y = (y + x / y) / 2;
+    i++;
   }
-  return (lower + upper) / 2;
+  return ldexp(y, exp / 2); // multiply answer by 2^(exp/2)
 }
 
 #endif /* FASTSQRT_H_ */

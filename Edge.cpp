@@ -13,6 +13,15 @@ Edge::Edge(Point source, Point target) {
   _parent = nullptr;
 }
 
+Edge::Edge(const Edge &edge) {
+  _source = edge._source;
+  _target = edge._target;
+  _weight = edge._weight;
+  _childrenInk = edge._childrenInk;
+  _parent = edge._parent;
+  _children = edge._children;
+}
+
 void Edge::addChild(Edge *child) {
   if (!isChildWithinAngle(child)) {
     throw "Child is not within the limit angle.";

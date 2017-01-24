@@ -10,7 +10,8 @@
 
 #include "ANN/ANN.h"
 #include "Edge.h"
-#include "InkAndBundle.h"
+#include "EdgeAndBundleOperationType.h"
+#include "InkBundleAndBundleOperationType.h"
 #include "NeighborAndBundle.h"
 #include <boost/cstdint.hpp>
 #include <limits>
@@ -94,16 +95,16 @@ private:
 
   /**
    * Get the bundled edge if these two edges were to make up a bundle.
-   * @return A bundled edge that contains edge1 and edge2 as children, plus
-   *     any other children that may be part of edge1 or edge2's bundles.
+   * @return A bundled edge that contains both edge1 and edge2, as well
+   *           as an operation type that describes how the two edges are merged.
    */
-  Edge *getBundledEdge(Edge &edge1, Edge &edge2);
+  EdgeAndBundleOperationType getBundledEdge(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundled edge of two edges that currently are not part of a bundle.
    * @return A new, bundled edge that contains edge1 and edge2.
    */
-  Edge *getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2);
+  Edge getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2);
 
   /**
    * Get the source centroid point for two edges.
@@ -131,7 +132,7 @@ private:
    * @return A  new bundle that contains all of the children in edge1 and edge2
    *     but is optimized to include the children of both.
    */
-  Edge *mergeTwoBundles(Edge &edge1, Edge &edge2);
+  Edge mergeTwoBundles(Edge &edge1, Edge &edge2);
 
   /**
    * Get the bundle if edge1 were to be added to bundle.
@@ -141,18 +142,15 @@ private:
    * bundle
    *     and it also includes edge1.
    */
-  Edge *addEdgeToBundle(Edge &edge1, Edge &bundle);
+  Edge addEdgeToBundle(Edge &edge1, Edge &bundle);
 
   /**
-   * Grabs two edges and makes the necessary changes to put them on
-   * one single bundle.  This is used after the findBestNeighborForEdge
-   * method has returned the best neighhbor for a given edge. Because we
-   * know that these two edges will give us ink savings, we put them together.
+   * Processes a bundle operation by placing the edge and neighbor of this
+   * operation on the same bundle.
    *
-   * @param edge1 The first edge to be put on the same bundle as edge2.
-   * @param edge2 The second edge to be put on the same bundle as edge1.
+   * @param bundleOperation The operation to process.
    */
-  void putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2, Edge *parent);
+  void processBundleOperation(BundleOperation bundleOperation);
 
   /**
    * Deletes the parent edge of the provided edge from the _parentEdges array.
@@ -230,18 +228,19 @@ private:
    * @return The ink saved by putting both edges on a same bundle and the
    *     bundle that will contain them both if they were in the same bundle.
    */
-  InkAndBundle estimateInkSavings(Edge &edge1, Edge &edge2);
+  InkBundleAndBundleOperationType estimateInkSavings(Edge &edge1, Edge &edge2);
 
   /**
    * Finds the neighbor that gives the most ink savings for an edge.
    * @param edge The edge to find whose neighbor gives the most ink savings.
    * @param neighbors The neighbors to look at to see which one has the most
    *     most ink savings.
-   * @return The best neighbor to bundle with and the bundle that will contain
-   *     both the edge and the neighbor if they are put together.
+   * @return A BundleOperation object that describes which two edges should be
+   * put
+   *           on what bundle together, as well as how they should be combined.
    */
-  NeighborAndBundle findBestNeighborForEdge(Edge &edge,
-                                            std::vector<Edge *> &neighbors);
+  BundleOperation findBestNeighborForEdge(Edge &edge,
+                                          std::vector<Edge *> &neighbors);
 
   /**
    * Gets the source point that is closes to the points, but that still keeps

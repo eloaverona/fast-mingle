@@ -8,7 +8,7 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.61.0 COMPONENTS math) 
 add_subdirectory(ann_1.1.2)
 
-set(MINGLER_SOURCE_FILES main.cpp main.h Edge.cpp Edge.h GetTotalInkWhenMovedByFraction.cpp GetTotalInkWhenMovedByFraction.h Point.cpp Point.h Edge.cpp Edge.h Graph.h Graph.cpp InkAndBundle.h NeighborAndBundle.h fastsqrt.h)
+set(MINGLER_SOURCE_FILES main.cpp main.h Edge.cpp Edge.h GetTotalInkWhenMovedByFraction.cpp GetTotalInkWhenMovedByFraction.h Point.cpp Point.h Edge.cpp Edge.h Graph.h Graph.cpp InkBundleAndBundleOperationType.h NeighborAndBundle.h EdgeAndBundleOperationType.h BundleOperation.h fastsqrt.h)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-register")
 include_directories(${Boost_INCLUDE_DIRS}) 
 add_executable(mingle ${MINGLER_SOURCE_FILES})

@@ -23,6 +23,11 @@ public:
   Edge(Point source, Point target);
 
   /**
+   * Copy constructor.
+   */
+  Edge(const Edge &edge);
+
+  /**
    * Get the source point of the edge.
    */
   Point getSource() { return _source; }

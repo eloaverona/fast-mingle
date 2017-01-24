@@ -4,6 +4,7 @@
 
 #include "Graph.h"
 #include "GetTotalInkWhenMovedByFraction.h"
+#include "InkBundleAndBundleOperationType.h"
 #include "Point.h"
 #include </usr/include/boost/math/tools/minima.hpp>
 #include <cassert>
@@ -149,17 +150,25 @@ void Graph::fillNeighborArrayWithEdgeNeighbors(Edge &target,
   }
 }
 
-Edge *Graph::getBundledEdge(Edge &edge1, Edge &edge2) {
-  if (!edge1.hasParent() && !edge2.hasParent()) {
-    return getBundledEdgeOfTwoUnbundledEdges(edge1, edge2);
-  } else if (edge1.getParent() == edge2.getParent()) {
-    return edge1.getParent();
-  } else if (edge1.hasParent() && edge2.hasParent()) {
-    return mergeTwoBundles(*edge1.getParent(), *edge2.getParent());
-  } else if (edge1.hasParent()) {
-    return addEdgeToBundle(edge2, *edge1.getParent());
-  } else {
-    return addEdgeToBundle(edge1, *edge2.getParent());
+EdgeAndBundleOperationType Graph::getBundledEdge(Edge &edge, Edge &neighbor) {
+  try {
+    if (!edge.hasParent() && !neighbor.hasParent()) {
+      return {getBundledEdgeOfTwoUnbundledEdges(edge, neighbor),
+              BundleOperationType::NEW_BUNDLE};
+    } else if (edge.getParent() == neighbor.getParent()) {
+      throw "They already are in the same bundle.";
+    } else if (edge.hasParent() && neighbor.hasParent()) {
+      return {mergeTwoBundles(*edge.getParent(), *neighbor.getParent()),
+              BundleOperationType::MERGE_BUNDLES};
+    } else if (edge.hasParent()) {
+      return {addEdgeToBundle(neighbor, *edge.getParent()),
+              BundleOperationType::ADD_NEIGHBOR_TO_PARENT_OF_EDGE};
+    } else {
+      return {addEdgeToBundle(edge, *neighbor.getParent()),
+              BundleOperationType::ADD_EDGE_TO_PARENT_OF_NEIGHBOR};
+    }
+  } catch (const char *msg) {
+    throw "The edges are unable to bundle together.";
   }
 }
 
@@ -178,12 +187,14 @@ int Graph::doMingle() {
       Edge &edge = *edgePointer;
       if (!edgePointer->hasParent()) {
         fillNeighborArrayWithEdgeNeighbors(edge, neighbors);
-        NeighborAndBundle bestNeighborAndBundle =
-            findBestNeighborForEdge(edge, neighbors);
-        if (bestNeighborAndBundle.neighbor != nullptr) {
-          putTwoEdgesOnSameBundle(*edgePointer, *bestNeighborAndBundle.neighbor,
-                                  bestNeighborAndBundle.bundle);
+        try {
+          BundleOperation bestBundleOperation =
+              findBestNeighborForEdge(edge, neighbors);
+          processBundleOperation(bestBundleOperation);
           numBundled++;
+        } catch (const char *msg) {
+          // Unable to find best bundle operation.
+          continue;
         }
       }
     }
@@ -211,28 +222,29 @@ void Graph::doRecursiveMingle() {
   }
 }
 
-void Graph::putTwoEdgesOnSameBundle(Edge &edge1, Edge &edge2, Edge *parent) {
-  if (!edge1.hasParent() && !edge2.hasParent()) {
-    edge1.setParent(parent);
-    edge2.setParent(parent);
-  } else if (edge1.getParent() == edge2.getParent()) {
-    // They are both in the same bundle so do nothing
-    if (parent != nullptr) {
-      delete parent;
-    }
-    return;
-  } else if (edge1.hasParent() && edge2.hasParent()) {
-    removeParentEdge(edge1);
-    removeParentEdge(edge2);
-  } else if (edge1.hasParent()) {
-    removeParentEdge(edge1);
-  } else {
-    removeParentEdge(edge2);
+void Graph::processBundleOperation(BundleOperation bundleOperation) {
+  switch (bundleOperation.operationType) {
+  case NEW_BUNDLE:
+    bundleOperation.edge.setParent(bundleOperation.bundle);
+    bundleOperation.neighborPointer->setParent(bundleOperation.bundle);
+    break;
+  case MERGE_BUNDLES:
+    removeParentEdge(bundleOperation.edge);
+    removeParentEdge(*bundleOperation.neighborPointer);
+    break;
+  case ADD_NEIGHBOR_TO_PARENT_OF_EDGE:
+    removeParentEdge(bundleOperation.edge);
+    break;
+  case ADD_EDGE_TO_PARENT_OF_NEIGHBOR:
+    removeParentEdge(*bundleOperation.neighborPointer);
+    break;
+  default:
+    break;
   }
-  for (Edge *edge : parent->getChildren()) {
-    edge->setParent(parent);
+  for (Edge *edge : bundleOperation.bundle->getChildren()) {
+    edge->setParent(bundleOperation.bundle);
   }
-  _parentEdges.push_back(parent);
+  _parentEdges.push_back(bundleOperation.bundle);
 }
 
 void Graph::removeParentEdge(Edge &edge) {
@@ -244,43 +256,54 @@ void Graph::removeParentEdge(Edge &edge) {
   edge.clearParent();
 }
 
-NeighborAndBundle
-Graph::findBestNeighborForEdge(Edge &edge, std::vector<Edge *> &neighbors) {
+BundleOperation Graph::findBestNeighborForEdge(Edge &edge,
+                                               std::vector<Edge *> &neighbors) {
   Edge *bestNeighborPointer = nullptr;
-  Edge *bestBundlePointer = nullptr;
+  Edge bestBundle = *neighbors[0];
+  BundleOperationType bestOperation;
   double maxInkSaved = 0.0;
   for (Edge *neighborPointer : neighbors) {
-    InkAndBundle inkSavedAndBundle = estimateInkSavings(edge, *neighborPointer);
-    if (inkSavedAndBundle.ink > maxInkSaved) {
-      maxInkSaved = inkSavedAndBundle.ink;
-      delete bestBundlePointer;
-      bestBundlePointer = inkSavedAndBundle.bundle;
-      bestNeighborPointer = neighborPointer;
-    } else {
-      // We won't need this anymore so we can free it.
-      delete inkSavedAndBundle.bundle;
+    try {
+      InkBundleAndBundleOperationType inkSavedBundleAndOperationType =
+          estimateInkSavings(edge, *neighborPointer);
+      if (inkSavedBundleAndOperationType.ink > maxInkSaved) {
+        maxInkSaved = inkSavedBundleAndOperationType.ink;
+        bestBundle = inkSavedBundleAndOperationType.bundle;
+        bestOperation = inkSavedBundleAndOperationType.bundleOperationType;
+        bestNeighborPointer = neighborPointer;
+      }
+    } catch (const char *msg) {
+      continue;
     }
   }
-  return {bestNeighborPointer, bestBundlePointer};
+  // If no maximum ink saved, throw.
+  if (maxInkSaved < 0.0001) {
+    throw "No ink saved.";
+  }
+  return {bestOperation, edge, bestNeighborPointer, new Edge(bestBundle),
+          maxInkSaved};
 }
 
-InkAndBundle Graph::estimateInkSavings(Edge &edge1, Edge &edge2) {
-  // If both are bundled together, then there are no ink savings.
+InkBundleAndBundleOperationType Graph::estimateInkSavings(Edge &edge1,
+                                                          Edge &edge2) {
   if ((edge1.hasParent() && edge2.hasParent()) &&
       (edge1.getParent() == edge2.getParent())) {
-    return {0.0, nullptr};
+    throw "There are no ink savings for these two edges because they are in "
+          "the same bundle.";
   }
   if (Point::getDistanceBetweenPoints(edge1.getSource(), edge2.getSource()) >
       Point::getDistanceBetweenPoints(edge1.getSource(), edge2.getTarget())) {
-    return {0.0, nullptr};
+    throw "There are no ink savings for these two edges because the source "
+          "points are too far away.";
   }
   double currentInk = getCurrentInkOfTwoEdges(edge1, edge2);
-  Edge *bundledEdge = getBundledEdge(edge1, edge2);
-  if (bundledEdge == nullptr) {
-    return {0.0, nullptr};
+  try {
+    EdgeAndBundleOperationType edgeAndBundle = getBundledEdge(edge1, edge2);
+    double inkSaving = currentInk - edgeAndBundle.edge.getInk();
+    return {inkSaving, edgeAndBundle.edge, edgeAndBundle.type};
+  } catch (const char *msg) {
+    throw "There are no ink savings for these two edges.";
   }
-  double inkSaving = currentInk - bundledEdge->getInk();
-  return {inkSaving, bundledEdge};
 }
 
 double Graph::getCurrentInkOfTwoEdges(Edge &edge1, Edge &edge2) {
@@ -298,7 +321,7 @@ double Graph::getCurrentInkOfTwoEdges(Edge &edge1, Edge &edge2) {
   return currentInk;
 }
 
-Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
+Edge Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   std::vector<Point> sourcePoints;
   sourcePoints.push_back(edge1.getSource());
   sourcePoints.push_back(edge2.getSource());
@@ -310,7 +333,6 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
   pointWeights.push_back(edge2.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
-  Edge *parentEdge = nullptr;
   try {
     Point adjustedSourcePoint =
         getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
@@ -320,20 +342,17 @@ Edge *Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    parentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
-    parentEdge->addChild(&edge1);
-    parentEdge->addChild(&edge2);
+    Edge parentEdge = Edge(sourceMeetingPoint, targetMeetingPoint);
+    parentEdge.addChild(&edge1);
+    parentEdge.addChild(&edge2);
     return parentEdge;
   } catch (const char *msg) {
-    // No points
-    if (parentEdge != nullptr) {
-      delete parentEdge;
-    }
-    return nullptr;
+    throw "Unable to merge two edges because there are no meeting points in "
+          "the allowed angle.";
   }
 }
 
-Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
+Edge Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
   assert(edge1.hasChildren() && edge2.hasChildren() && !edge1.hasParent() &&
          edge2.hasParent());
   std::vector<Point> sourcePoints;
@@ -351,7 +370,6 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
   }
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
-  Edge *newParentEdge = nullptr;
   try {
     Point adjustedSourcePoint =
         getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
@@ -361,23 +379,21 @@ Edge *Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+    Edge newParentEdge = Edge(sourceMeetingPoint, targetMeetingPoint);
     for (Edge *childEdge : edge1.getChildren()) {
-      newParentEdge->addChild(childEdge);
+      newParentEdge.addChild(childEdge);
     }
     for (Edge *childEdge : edge2.getChildren()) {
-      newParentEdge->addChild(childEdge);
+      newParentEdge.addChild(childEdge);
     }
     return newParentEdge;
   } catch (const char *msg) {
-    if (newParentEdge != nullptr) {
-      delete newParentEdge;
-    }
-    return nullptr;
+    throw "Unable to merge two edges because there are no meeting points in "
+          "the allowed angle.";
   }
 }
 
-Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
+Edge Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   assert(!bundle.hasParent() && bundle.hasChildren());
   std::vector<Point> sourcePoints;
   std::vector<Point> targetPoints;
@@ -392,7 +408,6 @@ Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
   pointWeights.push_back(edge1.getInkWeight());
   Point sourceCentroid = getCentroid(sourcePoints);
   Point targetCentroid = getCentroid(targetPoints);
-  Edge *newParentEdge = nullptr;
   try {
     Point adjustedSourcePoint =
         getMinimumSourcePoint(sourcePoints, sourceCentroid, targetCentroid);
@@ -402,17 +417,15 @@ Edge *Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    newParentEdge = new Edge(sourceMeetingPoint, targetMeetingPoint);
+    Edge newParentEdge = Edge(sourceMeetingPoint, targetMeetingPoint);
     for (Edge *childEdge : bundle.getChildren()) {
-      newParentEdge->addChild(childEdge);
+      newParentEdge.addChild(childEdge);
     }
-    newParentEdge->addChild(&edge1);
+    newParentEdge.addChild(&edge1);
     return newParentEdge;
   } catch (const char *msg) {
-    if (newParentEdge != nullptr) {
-      delete newParentEdge;
-    }
-    return nullptr;
+    throw "Unable to merge two edges because there are no meeting points in "
+          "the allowed angle.";
   }
 }
 
@@ -472,7 +485,7 @@ Point Graph::getMinimumSourcePoint(std::vector<Point> points, Point sourcePoint,
   // The point exceeds the target point, therefore throw an exception.
   if (Point::getDistanceBetweenPoints(targetPoint, sourcePoint) < maximum) {
     throw "The minimum point exceeds the target point. There is no point that "
-          "will make the point sstay within the angle.";
+          "will make the point stay within the angle.";
   }
   Point addition = moveUnitVector * maximum;
   return sourcePoint + addition;
