@@ -12,7 +12,7 @@ def plotFromNodeAndEdgesFile(nodesFilePath, edgesFilePath):
             layout.append((float(parts[1]), float(parts[2])))
     with open(edgesFilePath) as edgesFile:
         for line in edgesFile:
-            parts = line.split(":")
+            parts = line.split()
             graph.add_edge(
                 parts[0],
                 parts[1],

@@ -82,16 +82,16 @@ void Graph::writeEdges(
   Point sourcePoint = edge.getSource();
   Point targetPoint = edge.getTarget();
   if (!edge.hasParent()) {
-    fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[sourcePoint],
+    fprintf(edgesfilePointer, "%d %d %d\n", pointToPointIdMap[sourcePoint],
             pointToPointIdMap[targetPoint], edge.getWeight());
   }
   for (Edge *childPointer : edge.getChildren()) {
     Edge &child = *childPointer;
     writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
-    fprintf(edgesfilePointer, "%d:%d:%d\n",
+    fprintf(edgesfilePointer, "%d %d %d\n",
             pointToPointIdMap[child.getSource()],
             pointToPointIdMap[sourcePoint], childPointer->getWeight());
-    fprintf(edgesfilePointer, "%d:%d:%d\n", pointToPointIdMap[targetPoint],
+    fprintf(edgesfilePointer, "%d %d %d\n", pointToPointIdMap[targetPoint],
             pointToPointIdMap[child.getTarget()], childPointer->getWeight());
     if (child.hasChildren()) {
       writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
