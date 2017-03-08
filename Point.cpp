@@ -13,6 +13,9 @@ bool Point::operator==(const Point &other) const {
   return x == other.x && y == other.y;
 };
 
+bool Point::operator<(const Point &other) const {
+  return x < other.x && y < other.y;
+};
 std::size_t PointHasher::operator()(const Point &p) const {
   return std::hash<float>()(p.x) ^ (std::hash<float>()(p.y) << 1);
 }

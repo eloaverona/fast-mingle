@@ -15,6 +15,8 @@ struct Point {
   Point operator*(double k);
   bool operator==(const Point &other) const;
 
+  bool operator<(const Point &other) const;
+
   static Point getUnitVector(Point vector) {
     double length = getLengthOfVector(vector);
     return {vector.x / (float)length, vector.y / (float)length};

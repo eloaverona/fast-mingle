@@ -17,6 +17,8 @@
 #include <limits>
 #include <unordered_map>
 #include <vector>
+#include <boost/bimap.hpp>
+#include <string>
 
 class Graph {
 public:
@@ -24,7 +26,7 @@ public:
   /**
    * Reads edges from a file path and loads them into the graph.
    */
-  void readEdgesFromFile(const char *edgesFilePath);
+  void readVerticesAndEdges(const char *verticesFilePath, const char *edgesFilePath);
 
   /**
    * Does mingling recursively.
@@ -57,9 +59,18 @@ private:
   std::vector<Edge *> _parentEdges;
 
   /**
+   * Contains a map of the input points to the original id's of the input
+   * points.
+   */
+  std::unordered_map<Point, std::string, PointHasher> *pointToPointId;
+  std::unordered_map<std::string, Point> *pointIdToPoint;
+
+  /**
    * Read the next edge in the file and add it to the _edges array.
    */
-  void readNextEdgeInFile(FILE *filePointer);
+  void readNextEdgeInFile(std::ifstream &edgesStream);
+
+  void readNextPointInFile(std::ifstream &verticesStream);
 
   /**
    * Rebuild the ANN index for correct querying of neighbors with ANN.

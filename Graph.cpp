@@ -9,24 +9,48 @@
 #include </usr/include/boost/math/tools/minima.hpp>
 #include <cassert>
 #include <stdio.h>
+#include <string.h>
+#include <fstream>
 
-Graph::Graph() {}
 
-void Graph::readEdgesFromFile(const char *edgesFilePath) {
+Graph::Graph() {
+	pointToPointId = new std::unordered_map<Point, std::string, PointHasher>();
+	pointIdToPoint = new std::unordered_map<std::string, Point>();
+}
+
+void Graph::readVerticesAndEdges(const char *verticesFilePath, const char *edgesFilePath) {
   _edges.clear();
 
-  FILE *filePointer = fopen(edgesFilePath, "r");
-  assert(filePointer != nullptr);
+  std::ifstream verticesStream(verticesFilePath);
+  int numPoints;
+  verticesStream >> numPoints;
+  printf("Reading %d vertices. \n", numPoints);
+  for (int i = 0; i < numPoints; i++) {
+	  readNextPointInFile(verticesStream);
+  }
+  verticesStream.close();
 
+
+  std::ifstream edgesStream(edgesFilePath);
   int numEdges;
-  fscanf(filePointer, "%i", &numEdges);
+  edgesStream >> numEdges;
   printf("Reading %d edges.\n", numEdges);
   _edges.reserve(numEdges);
   for (int i = 0; i < numEdges; ++i) {
-    readNextEdgeInFile(filePointer);
+    readNextEdgeInFile(edgesStream);
   }
-  fclose(filePointer);
+  edgesStream.close();
   adjustNumNeighbors();
+}
+
+void Graph::readNextPointInFile(std::ifstream &verticesStream) {
+  float xCoord;
+  float yCoord;
+  std::string pointIdString;
+  verticesStream >> pointIdString >> xCoord >> yCoord;
+  Point point = {xCoord, yCoord};
+  pointIdToPoint->insert(std::make_pair(pointIdString, point));
+  pointToPointId->insert(std::make_pair(point, pointIdString));
 }
 
 void Graph::adjustNumNeighbors() {
@@ -101,16 +125,22 @@ void Graph::writeEdges(
   }
 }
 
-void Graph::readNextEdgeInFile(FILE *filePointer) {
-  float pointAx;
-  float pointAy;
-  float pointBx;
-  float pointBy;
-  fscanf(filePointer, "%f", &pointAx);
-  fscanf(filePointer, "%f", &pointAy);
-  fscanf(filePointer, "%f", &pointBx);
-  fscanf(filePointer, "%f", &pointBy);
-  Edge *node = new Edge({pointAx, pointAy}, {pointBx, pointBy});
+void Graph::readNextEdgeInFile(std::ifstream &edgesStream) {
+  std::string pointIdOne;
+  std::string pointIdTwo;
+
+  edgesStream >> pointIdOne >> pointIdTwo;
+  std::unordered_map<std::string, Point>::const_iterator pointOneIterator = pointIdToPoint->find(pointIdOne);
+  std::unordered_map<std::string, Point>::const_iterator pointTwoIterator = pointIdToPoint->find(pointIdTwo);
+  if(pointOneIterator == pointIdToPoint->end()) {
+	  std::string error = "Could not find point with pointId " + pointIdOne + " in the vertices file.";
+	  throw error;
+  }
+  if(pointTwoIterator == pointIdToPoint->end()) {
+	  std::string error = "Could not find point with pointId " + pointIdTwo + " in the vertices file.";
+	  throw error;
+  }
+  Edge *node = new Edge(pointOneIterator->second, pointTwoIterator->second);
   _edges.push_back(node);
 }
 
@@ -259,6 +289,9 @@ void Graph::removeParentEdge(Edge &edge) {
 BundleOperation Graph::findBestNeighborForEdge(Edge &edge,
                                                std::vector<Edge *> &neighbors) {
   Edge *bestNeighborPointer = nullptr;
+  if(neighbors.size() == 0) {
+	  throw "There are no neighbors.";
+  }
   Edge bestBundle = *neighbors[0];
   BundleOperationType bestOperation;
   double maxInkSaved = 0.0;
