@@ -12,7 +12,6 @@
 #include "Edge.h"
 #include "EdgeAndBundleOperationType.h"
 #include "InkBundleAndBundleOperationType.h"
-#include "NeighborAndBundle.h"
 #include <boost/bimap.hpp>
 #include <boost/cstdint.hpp>
 #include <limits>
