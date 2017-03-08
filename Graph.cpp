@@ -8,17 +8,17 @@
 #include "Point.h"
 #include </usr/include/boost/math/tools/minima.hpp>
 #include <cassert>
+#include <fstream>
 #include <stdio.h>
 #include <string.h>
-#include <fstream>
-
 
 Graph::Graph() {
-	pointToPointId = new std::unordered_map<Point, std::string, PointHasher>();
-	pointIdToPoint = new std::unordered_map<std::string, Point>();
+  pointToPointId = new std::unordered_map<Point, std::string, PointHasher>();
+  pointIdToPoint = new std::unordered_map<std::string, Point>();
 }
 
-void Graph::readVerticesAndEdges(const char *verticesFilePath, const char *edgesFilePath) {
+void Graph::readVerticesAndEdges(const char *verticesFilePath,
+                                 const char *edgesFilePath) {
   _edges.clear();
 
   std::ifstream verticesStream(verticesFilePath);
@@ -26,10 +26,9 @@ void Graph::readVerticesAndEdges(const char *verticesFilePath, const char *edges
   verticesStream >> numPoints;
   printf("Reading %d vertices. \n", numPoints);
   for (int i = 0; i < numPoints; i++) {
-	  readNextPointInFile(verticesStream);
+    readNextPointInFile(verticesStream);
   }
   verticesStream.close();
-
 
   std::ifstream edgesStream(edgesFilePath);
   int numEdges;
@@ -130,15 +129,19 @@ void Graph::readNextEdgeInFile(std::ifstream &edgesStream) {
   std::string pointIdTwo;
 
   edgesStream >> pointIdOne >> pointIdTwo;
-  std::unordered_map<std::string, Point>::const_iterator pointOneIterator = pointIdToPoint->find(pointIdOne);
-  std::unordered_map<std::string, Point>::const_iterator pointTwoIterator = pointIdToPoint->find(pointIdTwo);
-  if(pointOneIterator == pointIdToPoint->end()) {
-	  std::string error = "Could not find point with pointId " + pointIdOne + " in the vertices file.";
-	  throw error;
+  std::unordered_map<std::string, Point>::const_iterator pointOneIterator =
+      pointIdToPoint->find(pointIdOne);
+  std::unordered_map<std::string, Point>::const_iterator pointTwoIterator =
+      pointIdToPoint->find(pointIdTwo);
+  if (pointOneIterator == pointIdToPoint->end()) {
+    std::string error = "Could not find point with pointId " + pointIdOne +
+                        " in the vertices file.";
+    throw error;
   }
-  if(pointTwoIterator == pointIdToPoint->end()) {
-	  std::string error = "Could not find point with pointId " + pointIdTwo + " in the vertices file.";
-	  throw error;
+  if (pointTwoIterator == pointIdToPoint->end()) {
+    std::string error = "Could not find point with pointId " + pointIdTwo +
+                        " in the vertices file.";
+    throw error;
   }
   Edge *node = new Edge(pointOneIterator->second, pointTwoIterator->second);
   _edges.push_back(node);
@@ -289,8 +292,8 @@ void Graph::removeParentEdge(Edge &edge) {
 BundleOperation Graph::findBestNeighborForEdge(Edge &edge,
                                                std::vector<Edge *> &neighbors) {
   Edge *bestNeighborPointer = nullptr;
-  if(neighbors.size() == 0) {
-	  throw "There are no neighbors.";
+  if (neighbors.size() == 0) {
+    throw "There are no neighbors.";
   }
   Edge bestBundle = *neighbors[0];
   BundleOperationType bestOperation;

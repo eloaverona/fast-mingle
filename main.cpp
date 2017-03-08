@@ -4,7 +4,8 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
   if (argc != 5) {
-    fprintf(stderr, "usage: %s path_input_vertices.txt path_input_edges.txt path_output_vertices.txt "
+    fprintf(stderr, "usage: %s path_input_vertices.txt path_input_edges.txt "
+                    "path_output_vertices.txt "
                     "path_output_edges.txt\n",
             *argv);
     return 1;

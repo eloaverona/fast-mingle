@@ -13,12 +13,12 @@
 #include "EdgeAndBundleOperationType.h"
 #include "InkBundleAndBundleOperationType.h"
 #include "NeighborAndBundle.h"
+#include <boost/bimap.hpp>
 #include <boost/cstdint.hpp>
 #include <limits>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/bimap.hpp>
-#include <string>
 
 class Graph {
 public:
@@ -26,7 +26,8 @@ public:
   /**
    * Reads edges from a file path and loads them into the graph.
    */
-  void readVerticesAndEdges(const char *verticesFilePath, const char *edgesFilePath);
+  void readVerticesAndEdges(const char *verticesFilePath,
+                            const char *edgesFilePath);
 
   /**
    * Does mingling recursively.
