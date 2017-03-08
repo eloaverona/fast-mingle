@@ -5,7 +5,6 @@
 #ifndef POINT_H_
 #define POINT_H_
 
-#include "fastsqrt.h"
 #include <cmath>
 
 struct Point {
