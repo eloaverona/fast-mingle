@@ -65,61 +65,54 @@ void Graph::adjustNumNeighbors() {
 void Graph::writePointsAndEdges(const char *pointsFilePath,
                                 const char *edgesFilePath) {
   int nextPointId = 0;
-  std::unordered_map<Point, int, PointHasher> pointToPointIdMap;
   FILE *pointsFilePointer = fopen(pointsFilePath, "w");
   FILE *edgesfilePointer = fopen(edgesFilePath, "w");
   for (Edge *edge : _edges) {
-    writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, *edge,
-               pointToPointIdMap);
+    writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, *edge);
   }
 }
 
 void Graph::writePoints(
-    FILE *pointsFilePointer, Edge &edge, int &nextPointId,
-    std::unordered_map<Point, int, PointHasher> &pointToPointIdMap) {
+    FILE *pointsFilePointer, Edge &edge, int &nextPointId) {
   Point sourcePoint = edge.getSource();
   Point targetPoint = edge.getTarget();
-  addPointIfNotInMap(pointsFilePointer, sourcePoint, nextPointId,
-                     pointToPointIdMap);
-  addPointIfNotInMap(pointsFilePointer, targetPoint, nextPointId,
-                     pointToPointIdMap);
+  addPointIfNotInMap(pointsFilePointer, sourcePoint, nextPointId);
+  addPointIfNotInMap(pointsFilePointer, targetPoint, nextPointId);
 }
 
 void Graph::addPointIfNotInMap(
-    FILE *pointsFilePointer, Point point, int &nextPointId,
-    std::unordered_map<Point, int, PointHasher> &pointToPointIdMap) {
-  std::unordered_map<Point, int, PointHasher>::const_iterator result =
-      pointToPointIdMap.find(point);
-  if (result == pointToPointIdMap.end()) {
-    pointToPointIdMap[point] = nextPointId;
-    fprintf(pointsFilePointer, "%d %.4f %.4f\n", nextPointId, point.x, point.y);
+    FILE *pointsFilePointer, Point point, int &nextPointId) {
+  std::unordered_map<Point, std::string, PointHasher>::const_iterator result =
+     pointToPointId->find(point);
+  if (result == pointToPointId->end()) {
+	std::string newPointId = "mingledBundleVertexId" + std::to_string(nextPointId);
+	pointToPointId->insert(std::make_pair(point, newPointId));
+    fprintf(pointsFilePointer, "%s %.4f %.4f\n", newPointId.c_str(), point.x, point.y);
     nextPointId++;
   }
 }
 
 void Graph::writeEdges(
     FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId,
-    Edge &edge,
-    std::unordered_map<Point, int, PointHasher> &pointToPointIdMap) {
-  writePoints(pointsFilePointer, edge, nextPointId, pointToPointIdMap);
+    Edge &edge) {
+  writePoints(pointsFilePointer, edge, nextPointId);
   Point sourcePoint = edge.getSource();
   Point targetPoint = edge.getTarget();
   if (!edge.hasParent()) {
-    fprintf(edgesfilePointer, "%d %d %d\n", pointToPointIdMap[sourcePoint],
-            pointToPointIdMap[targetPoint], edge.getWeight());
+    fprintf(edgesfilePointer, "%s %s %d\n", pointToPointId->at(sourcePoint).c_str(),
+    		pointToPointId->at(targetPoint).c_str(), edge.getWeight());
   }
   for (Edge *childPointer : edge.getChildren()) {
     Edge &child = *childPointer;
-    writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
-    fprintf(edgesfilePointer, "%d %d %d\n",
-            pointToPointIdMap[child.getSource()],
-            pointToPointIdMap[sourcePoint], childPointer->getWeight());
-    fprintf(edgesfilePointer, "%d %d %d\n", pointToPointIdMap[targetPoint],
-            pointToPointIdMap[child.getTarget()], childPointer->getWeight());
+    writePoints(pointsFilePointer, child, nextPointId);
+    fprintf(edgesfilePointer, "%s %s %d\n",
+    		pointToPointId->at(child.getSource()).c_str(),
+			pointToPointId->at(sourcePoint).c_str(), childPointer->getWeight());
+    fprintf(edgesfilePointer, "%s %s %d\n", pointToPointId->at(targetPoint).c_str(),
+    		pointToPointId->at(child.getTarget()).c_str(), childPointer->getWeight());
     if (child.hasChildren()) {
-      writePoints(pointsFilePointer, child, nextPointId, pointToPointIdMap);
-      writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, child,
-                 pointToPointIdMap);
+      writePoints(pointsFilePointer, child, nextPointId);
+      writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, child);
     }
   }
 }

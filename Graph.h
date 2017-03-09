@@ -184,8 +184,7 @@ private:
    */
   void
   writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId,
-             Edge &edge,
-             std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
+             Edge &edge);
 
   /**
    * Writes the points of a given edge.
@@ -195,8 +194,7 @@ private:
    * @param pointToIdMap A map of point to points Ids.
    */
   void
-  writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId,
-              std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
+  writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId);
 
   /**
    * Writes a point if the point hasn't been already written. It checks the
@@ -209,8 +207,7 @@ private:
    *     added.
    */
   void addPointIfNotInMap(
-      FILE *pointsFilePointer, Point point, int &nextPointId,
-      std::unordered_map<Point, int, PointHasher> &pointToPointIdMap);
+      FILE *pointsFilePointer, Point point, int &nextPointId);
 
   /**
    * Use the brent search minimization algorithm to search for the optimal
