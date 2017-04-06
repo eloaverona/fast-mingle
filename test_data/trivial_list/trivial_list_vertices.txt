@@ -1,0 +1,6 @@
+5
+pointId3 100 -94.8571425
+pointId2 900 -425
+pointId5 800 -405
+pointId1 100 -71.42857
+pointId4 900 -375

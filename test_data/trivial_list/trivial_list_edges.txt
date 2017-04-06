@@ -1,0 +1,4 @@
+3
+pointId1 pointId2
+pointId3 pointId4
+pointId1 pointId5
