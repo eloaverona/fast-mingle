@@ -6,6 +6,7 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)  
 set(Boost_USE_STATIC_RUNTIME OFF) 
 find_package(Boost 1.61.0 COMPONENTS math) 
+find_package(Boost COMPONENTS program_options REQUIRED)
 add_subdirectory(ann_1.1.2)
 
 set(MINGLER_SOURCE_FILES main.cpp main.h Edge.cpp Edge.h GetTotalInkWhenMovedByFraction.cpp GetTotalInkWhenMovedByFraction.h Point.cpp Point.h Edge.cpp Edge.h Graph.h Graph.cpp InkBundleAndBundleOperationType.h EdgeAndBundleOperationType.h BundleOperation.h)
