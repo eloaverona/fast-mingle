@@ -15,7 +15,9 @@ To build mingle, you will need the following dependencies:
 
 In Ubuntu, you can install the needed dependencies with the following command:
 
-> sudo apt-get install cmake libboost-math-dev libboost-program-options-dev
+```
+sudo apt-get install cmake libboost-math-dev libboost-program-options-dev
+```
 
 ### Creating the makefiles with CMAKE
 
@@ -25,10 +27,15 @@ generate makefiles with the debug option enabled or disabled.
 
 To generate makefiles with the debug option enabled run the command:
 
-> cmake -DCMAKE_BUILD_TYPE=Debug CMakeLists.txt
+```
+cmake -DCMAKE_BUILD_TYPE=Debug CMakeLists.txt
+```
 
 To generate makefiles with the debug option disabled run the command:
-> cmake CMakeLists.txt
+
+```
+cmake CMakeLists.txt
+```
 
 Enabling the debug option will allow you to use GDB (or the Eclipse debugger) to
 debug the program. The program, however, will run up to 10 times slower. If you
@@ -39,7 +46,9 @@ option disabled.
 
 To build the MINGLE binary run the following command:
 
-> make
+```
+make
+```
 
 Now you're done! you should have the mingle binary in your working directory.
 
