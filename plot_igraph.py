@@ -78,8 +78,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if (args.more_vertices):
         plotFromVerticesAndEdgesFile(args.vertices[0], args.edges[0],
-                                     args.vertex_size,
-                                     args.more_vertices[0])
+                                     args.vertex_size, args.more_vertices[0])
     else:
         plotFromVerticesAndEdgesFile(args.vertices[0], args.edges[0],
                                      args.vertex_size)
