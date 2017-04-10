@@ -10,11 +10,12 @@ def addVerticesFileToGraphAndLayout(verticesFilePath, graph, layout):
             if (len(parts) != 3):
                 continue
             graph.add_vertex(parts[0])
-            layout.append((float(parts[1]), float(parts[2])))
+            layout.append((float(parts[1]), -float(parts[2])))
 
 
 def plotFromVerticesAndEdgesFile(verticesFilePath,
                                  edgesFilePath,
+                                 vertex_size,
                                  moreVerticesFilePath=None):
     graph = Graph(directed=True)
     layout = []
@@ -37,7 +38,7 @@ def plotFromVerticesAndEdgesFile(verticesFilePath,
     plot(
         graph,
         layout=layout,
-        vertex_size=3,
+        vertex_size=vertex_size,
         bbox=(1000, 1000),
         edge_curved=0,
         edge_arrow_size=0.5)
@@ -67,9 +68,18 @@ if __name__ == "__main__":
         type=str,
         nargs=1,
         help="An edges file in the file format specified above.")
+    parser.add_argument(
+        '--vertex_size',
+        required=False,
+        type=int,
+        nargs=1,
+        default=3,
+        help="The size to display the vertices in.")
     args = parser.parse_args()
     if (args.more_vertices):
         plotFromVerticesAndEdgesFile(args.vertices[0], args.edges[0],
+                                     args.vertex_size,
                                      args.more_vertices[0])
     else:
-        plotFromVerticesAndEdgesFile(args.vertices[0], args.edges[0])
+        plotFromVerticesAndEdgesFile(args.vertices[0], args.edges[0],
+                                     args.vertex_size)
