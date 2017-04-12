@@ -182,5 +182,10 @@ original vertices in the graph.
 
 ## FAQ
 
+- What's the difference between a point an a vertex?
+
+They are the same, a point and a vertex are the same on the graph. There are just some inconsistencies on how it is refered to in the code. My bad.
+
+
 Create an issue if you have any questions about the ussage of mingle! Don't
 be shy! I will do my best to be quick to reply.
