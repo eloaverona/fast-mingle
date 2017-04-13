@@ -64,6 +64,10 @@ int main(int argc, char *argv[]) {
     std::cerr << "Unhandled Exception reached the top of main: " << e.what()
               << ", application will now exit" << std::endl;
     return ERROR_UNHANDLED_EXCEPTION;
+  } catch (char const *msg) {
+    std::cerr << "Unhandled Exception reached the top of main: " << msg
+              << ", application will now exit" << std::endl;
+    return ERROR_UNHANDLED_EXCEPTION;
   }
   return SUCCESS;
 }

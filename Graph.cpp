@@ -22,8 +22,18 @@ void Graph::readVerticesAndEdges(const char *verticesFilePath,
   _edges.clear();
 
   std::ifstream verticesStream(verticesFilePath);
+
+  if (!verticesStream.is_open()) {
+    throw std::runtime_error(
+        "Could not open the vertices file. Check vertices file path.");
+  }
   int numPoints;
   verticesStream >> numPoints;
+
+  if (numPoints == 0) {
+    throw std::runtime_error("Error reading the number of vertices. Check the "
+                             "vertices file format.");
+  }
   printf("Reading %d vertices. \n", numPoints);
   for (int i = 0; i < numPoints; i++) {
     readNextPointInFile(verticesStream);
@@ -31,8 +41,19 @@ void Graph::readVerticesAndEdges(const char *verticesFilePath,
   verticesStream.close();
 
   std::ifstream edgesStream(edgesFilePath);
+  if (!edgesStream.is_open()) {
+    throw std::runtime_error(
+        "Could not open the edges file. Check edges file path.");
+  }
   int numEdges;
   edgesStream >> numEdges;
+  if (numEdges == 0) {
+    throw std::runtime_error(
+        "Error reading the number of edges. Check the edges file format.");
+  }
+  if (numEdges == 0) {
+    throw "Error reading the number of edges. Check the edges file format.";
+  }
   printf("Reading %d edges.\n", numEdges);
   _edges.reserve(numEdges);
   for (int i = 0; i < numEdges; ++i) {
@@ -46,7 +67,18 @@ void Graph::readNextPointInFile(std::ifstream &verticesStream) {
   float xCoord;
   float yCoord;
   std::string pointIdString;
-  verticesStream >> pointIdString >> xCoord >> yCoord;
+  try {
+    verticesStream >> pointIdString >> xCoord >> yCoord;
+  } catch (...) {
+    throw std::runtime_error("Error reading from the vertices file. Check the "
+                             "vertices file format.");
+  }
+
+  if (pointIdString == "") {
+    throw std::runtime_error("Read a blank vertex id. Please check that the "
+                             "number of vertices in the first line is "
+                             "correct.");
+  }
   Point point = {xCoord, yCoord};
   pointIdToPoint->insert(std::make_pair(pointIdString, point));
   pointToPointId->insert(std::make_pair(point, pointIdString));
@@ -72,44 +104,47 @@ void Graph::writePointsAndEdges(const char *pointsFilePath,
   }
 }
 
-void Graph::writePoints(
-    FILE *pointsFilePointer, Edge &edge, int &nextPointId) {
+void Graph::writePoints(FILE *pointsFilePointer, Edge &edge, int &nextPointId) {
   Point sourcePoint = edge.getSource();
   Point targetPoint = edge.getTarget();
   addPointIfNotInMap(pointsFilePointer, sourcePoint, nextPointId);
   addPointIfNotInMap(pointsFilePointer, targetPoint, nextPointId);
 }
 
-void Graph::addPointIfNotInMap(
-    FILE *pointsFilePointer, Point point, int &nextPointId) {
+void Graph::addPointIfNotInMap(FILE *pointsFilePointer, Point point,
+                               int &nextPointId) {
   std::unordered_map<Point, std::string, PointHasher>::const_iterator result =
-     pointToPointId->find(point);
+      pointToPointId->find(point);
   if (result == pointToPointId->end()) {
-	std::string newPointId = "mingledBundleVertexId" + std::to_string(nextPointId);
-	pointToPointId->insert(std::make_pair(point, newPointId));
-    fprintf(pointsFilePointer, "%s %.4f %.4f\n", newPointId.c_str(), point.x, point.y);
+    std::string newPointId =
+        "mingledBundleVertexId" + std::to_string(nextPointId);
+    pointToPointId->insert(std::make_pair(point, newPointId));
+    fprintf(pointsFilePointer, "%s %.4f %.4f\n", newPointId.c_str(), point.x,
+            point.y);
     nextPointId++;
   }
 }
 
-void Graph::writeEdges(
-    FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId,
-    Edge &edge) {
+void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer,
+                       int &nextPointId, Edge &edge) {
   writePoints(pointsFilePointer, edge, nextPointId);
   Point sourcePoint = edge.getSource();
   Point targetPoint = edge.getTarget();
   if (!edge.hasParent()) {
-    fprintf(edgesfilePointer, "%s %s %d\n", pointToPointId->at(sourcePoint).c_str(),
-    		pointToPointId->at(targetPoint).c_str(), edge.getWeight());
+    fprintf(edgesfilePointer, "%s %s %d\n",
+            pointToPointId->at(sourcePoint).c_str(),
+            pointToPointId->at(targetPoint).c_str(), edge.getWeight());
   }
   for (Edge *childPointer : edge.getChildren()) {
     Edge &child = *childPointer;
     writePoints(pointsFilePointer, child, nextPointId);
     fprintf(edgesfilePointer, "%s %s %d\n",
-    		pointToPointId->at(child.getSource()).c_str(),
-			pointToPointId->at(sourcePoint).c_str(), childPointer->getWeight());
-    fprintf(edgesfilePointer, "%s %s %d\n", pointToPointId->at(targetPoint).c_str(),
-    		pointToPointId->at(child.getTarget()).c_str(), childPointer->getWeight());
+            pointToPointId->at(child.getSource()).c_str(),
+            pointToPointId->at(sourcePoint).c_str(), childPointer->getWeight());
+    fprintf(edgesfilePointer, "%s %s %d\n",
+            pointToPointId->at(targetPoint).c_str(),
+            pointToPointId->at(child.getTarget()).c_str(),
+            childPointer->getWeight());
     if (child.hasChildren()) {
       writePoints(pointsFilePointer, child, nextPointId);
       writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, child);
@@ -126,15 +161,17 @@ void Graph::readNextEdgeInFile(std::ifstream &edgesStream) {
       pointIdToPoint->find(pointIdOne);
   std::unordered_map<std::string, Point>::const_iterator pointTwoIterator =
       pointIdToPoint->find(pointIdTwo);
+  if (pointIdOne == "" || pointIdTwo == "") {
+    throw std::runtime_error("Read a blank vertex id. Please check that the "
+                             "number of edges in the first line is correct.");
+  }
   if (pointOneIterator == pointIdToPoint->end()) {
-    std::string error = "Could not find point with pointId " + pointIdOne +
-                        " in the vertices file.";
-    throw error;
+    throw std::runtime_error("Could not find point with pointId " + pointIdOne +
+                             " in the vertices file.");
   }
   if (pointTwoIterator == pointIdToPoint->end()) {
-    std::string error = "Could not find point with pointId " + pointIdTwo +
-                        " in the vertices file.";
-    throw error;
+    throw std::runtime_error("Could not find point with pointId " + pointIdTwo +
+                             " in the vertices file.");
   }
   Edge *node = new Edge(pointOneIterator->second, pointTwoIterator->second);
   _edges.push_back(node);
