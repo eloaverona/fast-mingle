@@ -1,0 +1,4 @@
+mingledBundleVertexId0 27.4601 27.4601
+mingledBundleVertexId1 -27.4698 -27.4698
+mingledBundleVertexId2 -27.4601 27.4601
+mingledBundleVertexId3 27.4698 -27.4698

@@ -1,0 +1,10 @@
+mingledBundleVertexId0 mingledBundleVertexId1 3
+03 mingledBundleVertexId0 1
+mingledBundleVertexId1 06 1
+04 mingledBundleVertexId0 1
+mingledBundleVertexId1 05 1
+mingledBundleVertexId2 mingledBundleVertexId3 3
+01 mingledBundleVertexId2 1
+mingledBundleVertexId3 08 1
+02 mingledBundleVertexId2 1
+mingledBundleVertexId3 07 1

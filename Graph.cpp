@@ -135,18 +135,22 @@ void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, FILE *se
     Point sourcePoint = edge.getSource();
     Point targetPoint = edge.getTarget();
 
+
+
+
     if (!edge.hasParent()) {
         fprintf(edgesfilePointer, "%s %s %d\n",
                 pointToPointId->at(sourcePoint).c_str(),
                 pointToPointId->at(targetPoint).c_str(), edge.getWeight());
-        fprintf(semanticEdgesPointer, "%s %s %s\n",
+        fprintf(semanticEdgesPointer, "%s %s %s \n",
                 edge.get_id(),
                 pointToPointId->at(sourcePoint).c_str(),
                 pointToPointId->at(targetPoint).c_str());
 
 
     } else {
-        fprintf(semanticEdgesPointer, "%s %s %s\n",
+
+        fprintf(semanticEdgesPointer, "%s %s %s %s\n",
                 edge.get_id(),
                 pointToPointId->at(sourcePoint).c_str(),
                 pointToPointId->at(targetPoint).c_str(),
@@ -159,20 +163,16 @@ void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, FILE *se
         writePoints(pointsFilePointer, child, nextPointId);
 
         fprintf(edgesfilePointer,"%s %s %d\n",
-
                 pointToPointId->at(child.getSource()).c_str(),
                 pointToPointId->at(sourcePoint).c_str(), childPointer->getWeight());
-        fprintf(edgesfilePointer, "%s %s %d\n",
 
+        fprintf(edgesfilePointer, "%s %s %d\n",
                 pointToPointId->at(targetPoint).c_str(),
                 pointToPointId->at(child.getTarget()).c_str(),
                 childPointer->getWeight());
 
-        fprintf(semanticEdgesPointer, "%s %s %s %s\n",
-                child.get_id(),
-                pointToPointId->at(child.getSource()).c_str(),
-                pointToPointId->at(child.getTarget()).c_str(),
-                edge.get_id());
+
+
 
 
     if (child.hasChildren()) {
@@ -180,7 +180,11 @@ void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, FILE *se
       writeEdges(pointsFilePointer, edgesfilePointer, semanticEdgesPointer ,nextPointId, child);
     }
     else{
-
+        fprintf(semanticEdgesPointer, "%s %s %s %s\n",
+                child.get_id(),
+                pointToPointId->at(child.getSource()).c_str(),
+                pointToPointId->at(child.getTarget()).c_str(),
+                child.getParent()->get_id());
     }
 
   }

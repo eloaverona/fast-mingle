@@ -1,0 +1,6 @@
+e10 mingledBundleVertexId0 mingledBundleVertexId1 
+e3 03 06 e10
+e4 04 05 e10
+e12 mingledBundleVertexId2 mingledBundleVertexId3 
+e1 01 08 e12
+e2 02 07 e12
