@@ -26,7 +26,11 @@ int main(int argc, char *argv[]) {
         "The output vertices that were created in the mingling process.")(
         "output_edges",
         boost::program_options::value<std::string>()->required(),
-        "The output edges of the final, mingled graph.");
+        "The output edges of the final, mingled graph.")(
+        "output_semanticTreeOfEdges",
+        boost::program_options::value<std::string>()->required(),
+        "Path for the semantic tree of the bundled edges"
+    );
 
     boost::program_options::variables_map variables_map;
     try {
@@ -59,7 +63,7 @@ int main(int argc, char *argv[]) {
     graph->writePointsAndEdges(
         variables_map["output_vertices"].as<std::string>().c_str(),
         variables_map["output_edges"].as<std::string>().c_str(),
-        "semantic_edges.txt");
+        variables_map["output_semanticTreeOfEdges"].as<std::string>().c_str());
 
 
     return SUCCESS;
