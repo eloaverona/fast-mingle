@@ -4,22 +4,28 @@
 
 #include "Edge.h"
 #include "Point.h"
+#include "EdgeIdGenerator.h"
 
-Edge::Edge(Point source, Point target) {
+Edge::Edge(Point source, Point target, EdgeIdGenerator idGenerator) {
   _source = source;
   _target = target;
   _weight = 1;
   _childrenInk = 0;
   _parent = nullptr;
+  _id = idGenerator.generateNewID();
+
+
+
 }
 
-Edge::Edge(const Edge &edge) {
+Edge::Edge(const Edge &edge, EdgeIdGenerator idGenerator) {
   _source = edge._source;
   _target = edge._target;
   _weight = edge._weight;
   _childrenInk = edge._childrenInk;
   _parent = edge._parent;
   _children = edge._children;
+    _id = idGenerator.generateNewID();
 }
 
 void Edge::addChild(Edge *child) {
@@ -52,3 +58,9 @@ bool Edge::isChildWithinAngle(Edge *child) {
 }
 
 void Edge::clearParent() { _parent = nullptr; }
+
+char *Edge::get_id() const {
+    return _id;
+}
+
+

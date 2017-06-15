@@ -58,7 +58,10 @@ int main(int argc, char *argv[]) {
     graph->doRecursiveMingle();
     graph->writePointsAndEdges(
         variables_map["output_vertices"].as<std::string>().c_str(),
-        variables_map["output_edges"].as<std::string>().c_str());
+        variables_map["output_edges"].as<std::string>().c_str(),
+        "semantic_edges.txt");
+
+
     return SUCCESS;
   } catch (std::exception &e) {
     std::cerr << "Unhandled Exception reached the top of main: " << e.what()

@@ -6,15 +6,17 @@
 #include "GetTotalInkWhenMovedByFraction.h"
 #include "InkBundleAndBundleOperationType.h"
 #include "Point.h"
-#include </usr/include/boost/math/tools/minima.hpp>
+#include </usr/local/Cellar/boost/1.64.0_1/include/boost/math/tools/minima.hpp>
 #include <cassert>
 #include <fstream>
 #include <stdio.h>
 #include <string.h>
+#include "EdgeIdGenerator.h"
 
 Graph::Graph() {
   pointToPointId = new std::unordered_map<Point, std::string, PointHasher>();
   pointIdToPoint = new std::unordered_map<std::string, Point>();
+  idGenerator = EdgeIdGenerator();
 }
 
 void Graph::readVerticesAndEdges(const char *verticesFilePath,
@@ -95,12 +97,14 @@ void Graph::adjustNumNeighbors() {
 }
 
 void Graph::writePointsAndEdges(const char *pointsFilePath,
-                                const char *edgesFilePath) {
+                                const char *edgesFilePath, const char *semanticEdgesFilePath) {
   int nextPointId = 0;
   FILE *pointsFilePointer = fopen(pointsFilePath, "w");
   FILE *edgesfilePointer = fopen(edgesFilePath, "w");
+  FILE *semanticEdgesFilePointer = fopen(semanticEdgesFilePath, "w");
   for (Edge *edge : _edges) {
-    writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, *edge);
+    writeEdges(pointsFilePointer, edgesfilePointer,semanticEdgesFilePointer, nextPointId, *edge);
+
   }
 }
 
@@ -125,30 +129,60 @@ void Graph::addPointIfNotInMap(FILE *pointsFilePointer, Point point,
   }
 }
 
-void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer,
+void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, FILE *semanticEdgesPointer,
                        int &nextPointId, Edge &edge) {
-  writePoints(pointsFilePointer, edge, nextPointId);
-  Point sourcePoint = edge.getSource();
-  Point targetPoint = edge.getTarget();
-  if (!edge.hasParent()) {
-    fprintf(edgesfilePointer, "%s %s %d\n",
-            pointToPointId->at(sourcePoint).c_str(),
-            pointToPointId->at(targetPoint).c_str(), edge.getWeight());
-  }
-  for (Edge *childPointer : edge.getChildren()) {
-    Edge &child = *childPointer;
-    writePoints(pointsFilePointer, child, nextPointId);
-    fprintf(edgesfilePointer, "%s %s %d\n",
-            pointToPointId->at(child.getSource()).c_str(),
-            pointToPointId->at(sourcePoint).c_str(), childPointer->getWeight());
-    fprintf(edgesfilePointer, "%s %s %d\n",
-            pointToPointId->at(targetPoint).c_str(),
-            pointToPointId->at(child.getTarget()).c_str(),
-            childPointer->getWeight());
+    writePoints(pointsFilePointer, edge, nextPointId);
+    Point sourcePoint = edge.getSource();
+    Point targetPoint = edge.getTarget();
+
+    if (!edge.hasParent()) {
+        fprintf(edgesfilePointer, "%s %s %d\n",
+                pointToPointId->at(sourcePoint).c_str(),
+                pointToPointId->at(targetPoint).c_str(), edge.getWeight());
+        fprintf(semanticEdgesPointer, "%s %s %s\n",
+                edge.get_id(),
+                pointToPointId->at(sourcePoint).c_str(),
+                pointToPointId->at(targetPoint).c_str());
+
+
+    } else {
+        fprintf(semanticEdgesPointer, "%s %s %s\n",
+                edge.get_id(),
+                pointToPointId->at(sourcePoint).c_str(),
+                pointToPointId->at(targetPoint).c_str(),
+                edge.getParent()->get_id());
+    }
+
+
+    for (Edge *childPointer : edge.getChildren()) {
+        Edge &child = *childPointer;
+        writePoints(pointsFilePointer, child, nextPointId);
+
+        fprintf(edgesfilePointer,"%s %s %d\n",
+
+                pointToPointId->at(child.getSource()).c_str(),
+                pointToPointId->at(sourcePoint).c_str(), childPointer->getWeight());
+        fprintf(edgesfilePointer, "%s %s %d\n",
+
+                pointToPointId->at(targetPoint).c_str(),
+                pointToPointId->at(child.getTarget()).c_str(),
+                childPointer->getWeight());
+
+        fprintf(semanticEdgesPointer, "%s %s %s %s\n",
+                child.get_id(),
+                pointToPointId->at(child.getSource()).c_str(),
+                pointToPointId->at(child.getTarget()).c_str(),
+                edge.get_id());
+
+
     if (child.hasChildren()) {
       writePoints(pointsFilePointer, child, nextPointId);
-      writeEdges(pointsFilePointer, edgesfilePointer, nextPointId, child);
+      writeEdges(pointsFilePointer, edgesfilePointer, semanticEdgesPointer ,nextPointId, child);
     }
+    else{
+
+    }
+
   }
 }
 
@@ -173,7 +207,7 @@ void Graph::readNextEdgeInFile(std::ifstream &edgesStream) {
     throw std::runtime_error("Could not find point with pointId " + pointIdTwo +
                              " in the vertices file.");
   }
-  Edge *node = new Edge(pointOneIterator->second, pointTwoIterator->second);
+  Edge *node = new Edge(pointOneIterator->second, pointTwoIterator->second, idGenerator);
   _edges.push_back(node);
 }
 
@@ -250,6 +284,7 @@ int Graph::doMingle() {
       Edge &edge = *edgePointer;
       if (!edgePointer->hasParent()) {
         fillNeighborArrayWithEdgeNeighbors(edge, neighbors);
+
         try {
           BundleOperation bestBundleOperation =
               findBestNeighborForEdge(edge, neighbors);
@@ -346,7 +381,7 @@ BundleOperation Graph::findBestNeighborForEdge(Edge &edge,
   if (maxInkSaved < 0.0001) {
     throw "No ink saved.";
   }
-  return {bestOperation, edge, bestNeighborPointer, new Edge(bestBundle),
+  return {bestOperation, edge, bestNeighborPointer, new Edge(bestBundle, idGenerator),
           maxInkSaved};
 }
 
@@ -408,7 +443,7 @@ Edge Graph::getBundledEdgeOfTwoUnbundledEdges(Edge &edge1, Edge &edge2) {
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    Edge parentEdge = Edge(sourceMeetingPoint, targetMeetingPoint);
+    Edge parentEdge = Edge(sourceMeetingPoint, targetMeetingPoint, idGenerator);
     parentEdge.addChild(&edge1);
     parentEdge.addChild(&edge2);
     return parentEdge;
@@ -445,7 +480,7 @@ Edge Graph::mergeTwoBundles(Edge &edge1, Edge &edge2) {
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    Edge newParentEdge = Edge(sourceMeetingPoint, targetMeetingPoint);
+    Edge newParentEdge = Edge(sourceMeetingPoint, targetMeetingPoint, idGenerator);
     for (Edge *childEdge : edge1.getChildren()) {
       newParentEdge.addChild(childEdge);
     }
@@ -483,7 +518,7 @@ Edge Graph::addEdgeToBundle(Edge &edge1, Edge &bundle) {
         adjustedSourcePoint, adjustedTargetPoint, sourcePoints, pointWeights);
     Point targetMeetingPoint = brentSearchMeetingPoint(
         adjustedTargetPoint, sourceMeetingPoint, targetPoints, pointWeights);
-    Edge newParentEdge = Edge(sourceMeetingPoint, targetMeetingPoint);
+    Edge newParentEdge = Edge(sourceMeetingPoint, targetMeetingPoint, idGenerator);
     for (Edge *childEdge : bundle.getChildren()) {
       newParentEdge.addChild(childEdge);
     }

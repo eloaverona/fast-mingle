@@ -18,6 +18,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "EdgeIdGenerator.h"
 
 class Graph {
 public:
@@ -41,18 +42,19 @@ public:
    *     of the file that will contain the edges between points.
    */
   void writePointsAndEdges(const char *pointsFilePath,
-                           const char *edgesFilePath);
+                           const char *edgesFilePath, const char *semanticEdgesFilePath);
+    std::vector<Edge *> _allEdges;
 
 private:
   // Members needed for the ANN search
   ANNpointArray annPoints = nullptr;
   ANNkd_tree *annTree = nullptr;
 
-  /**
-   * The edges currently being looked at for the mingling.
-   */
-  std::vector<Edge *> _edges;
 
+    /**
+      * The edges currently being looked at for the mingling.
+      */
+  std::vector<Edge *> _edges;
   /**
    * A list of parent edges of the current edges that are being looked at.
    */
@@ -65,6 +67,7 @@ private:
   std::unordered_map<Point, std::string, PointHasher> *pointToPointId;
   std::unordered_map<std::string, Point> *pointIdToPoint;
 
+    EdgeIdGenerator idGenerator;
   /**
    * Read the next edge in the file and add it to the _edges array.
    */
@@ -183,7 +186,7 @@ private:
    * @param pointToIdMap A map of points and their repsective id's.
    */
   void
-  writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, int &nextPointId,
+  writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, FILE *semanticEdgesPointer ,int &nextPointId,
              Edge &edge);
 
   /**

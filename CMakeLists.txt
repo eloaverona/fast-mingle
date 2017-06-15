@@ -9,7 +9,7 @@ find_package(Boost 1.61.0 COMPONENTS math)
 find_package(Boost COMPONENTS program_options REQUIRED)
 add_subdirectory(ann_1.1.2)
 
-set(MINGLER_SOURCE_FILES main.cpp main.h Edge.cpp Edge.h GetTotalInkWhenMovedByFraction.cpp GetTotalInkWhenMovedByFraction.h Point.cpp Point.h Edge.cpp Edge.h Graph.h Graph.cpp InkBundleAndBundleOperationType.h EdgeAndBundleOperationType.h BundleOperation.h)
+set(MINGLER_SOURCE_FILES main.cpp main.h Edge.cpp Edge.h GetTotalInkWhenMovedByFraction.cpp GetTotalInkWhenMovedByFraction.h Point.cpp Point.h Edge.cpp Edge.h Graph.h Graph.cpp InkBundleAndBundleOperationType.h EdgeAndBundleOperationType.h BundleOperation.h EdgeIdGenerator.cpp EdgeIdGenerator.h)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-register")
 include_directories(${Boost_INCLUDE_DIRS}) 
 add_executable(mingle ${MINGLER_SOURCE_FILES})

@@ -14,18 +14,19 @@
 #include "Point.h"
 #include <cmath>
 #include <vector>
+#include "EdgeIdGenerator.h"
 
 class Edge {
 public:
   /**
    * Build an edge given a source point and a target point.
    */
-  Edge(Point source, Point target);
+  Edge(Point source, Point target, EdgeIdGenerator idGenerator );
 
   /**
    * Copy constructor.
    */
-  Edge(const Edge &edge);
+  Edge(const Edge &edge, EdgeIdGenerator idGenerator);
 
   /**
    * Get the source point of the edge.
@@ -103,13 +104,27 @@ public:
    */
   static constexpr double cosineMaximumAngle = 0.76604;
 
+
+
+
 private:
-  int _weight;
-  double _childrenInk;
+public:
+    char *get_id() const;
+
+private:
+    int _weight;
+
+
+private:
+    double _childrenInk;
+
+
+private:
   Point _source;
   Point _target;
   std::vector<Edge *> _children;
   Edge *_parent;
+  char *_id;
 
   /**
    * Check if the given child would fall within the limit angle.
