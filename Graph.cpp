@@ -136,25 +136,25 @@ void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, FILE *se
     Point targetPoint = edge.getTarget();
 
 
-
-
     if (!edge.hasParent()) {
         fprintf(edgesfilePointer, "%s %s %d\n",
                 pointToPointId->at(sourcePoint).c_str(),
                 pointToPointId->at(targetPoint).c_str(), edge.getWeight());
-        fprintf(semanticEdgesPointer, "%s %s %s \n",
+        fprintf(semanticEdgesPointer, "%s %s %s %d\n",
                 edge.get_id(),
                 pointToPointId->at(sourcePoint).c_str(),
-                pointToPointId->at(targetPoint).c_str());
+                pointToPointId->at(targetPoint).c_str(),
+                edge.getWeight());
 
 
     } else {
 
-        fprintf(semanticEdgesPointer, "%s %s %s %s\n",
+        fprintf(semanticEdgesPointer, "%s %s %s %s %d\n",
                 edge.get_id(),
                 pointToPointId->at(sourcePoint).c_str(),
                 pointToPointId->at(targetPoint).c_str(),
-                edge.getParent()->get_id());
+                edge.getParent()->get_id(),
+                edge.getWeight());
     }
 
 
@@ -173,20 +173,18 @@ void Graph::writeEdges(FILE *pointsFilePointer, FILE *edgesfilePointer, FILE *se
 
 
 
-
-
     if (child.hasChildren()) {
       writePoints(pointsFilePointer, child, nextPointId);
       writeEdges(pointsFilePointer, edgesfilePointer, semanticEdgesPointer ,nextPointId, child);
     }
     else{
-        fprintf(semanticEdgesPointer, "%s %s %s %s\n",
+        fprintf(semanticEdgesPointer, "%s %s %s %s %d\n",
                 child.get_id(),
                 pointToPointId->at(child.getSource()).c_str(),
                 pointToPointId->at(child.getTarget()).c_str(),
-                child.getParent()->get_id());
+                child.getParent()->get_id(),
+                child.getWeight());
     }
-
   }
 }
 

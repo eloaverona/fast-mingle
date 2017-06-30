@@ -28,9 +28,8 @@ public:
 
         lastId = newIDnumber;
         char *id;
-        id = (char *) malloc(sizeof(char) + sizeof(long));
-        snprintf(id, sizeof(char) + sizeof(long), "e%lu", newIDnumber);
-
+        id = (char *) malloc((sizeof(char) + sizeof(unsigned long)) + 2);
+        snprintf(id, sizeof(char) + sizeof(unsigned long) + 2, "e%lu", newIDnumber);
         return id;
     }
 };
